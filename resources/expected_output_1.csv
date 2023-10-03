@@ -1,0 +1,6 @@
+Time, Pid, Old State, New State
+0, 1001, New, Ready
+0, 1001, Ready, Running
+100, 1002, New, Ready
+100, 1001, Running, Terminated
+100, 1002, Ready, Running
