@@ -66,14 +66,19 @@ int read_from_file(char *file_name, struct process processes[]){
 
 
 int test_file_read(int num_processes, struct process processes[]){
+
+	FILE *output;
+	output = fopen("out/output_4.csv", "w+");
+
 	for (int i = 0; i < num_processes; i++) {
-	        printf("Process %d:\n", i);
-	        printf("PID: %d\n", processes[i].pid);
-	        printf("Arrival Time: %d\n", processes[i].arrival_time);
-	        printf("Total CPU Time: %d\n", processes[i].total_cpu_time);
-	        printf("I/O Frequency: %d\n", processes[i].io_frequency);
-	        printf("I/O Duration: %d\n", processes[i].io_duration);
+		fprintf(output, "Process: %d,", i);
+	        fprintf(output, "PID: %d,", processes[i].pid);
+	        fprintf(output, "Arrival Time: %d,", processes[i].arrival_time);
+	        fprintf(output, "Total CPU Time: %d,", processes[i].total_cpu_time);
+	        fprintf(output, "I/O Frequency: %d,", processes[i].io_frequency);
+	        fprintf(output, "I/O Duration: %d\n", processes[i].io_duration);
 	    }
+	fclose(output);
 	return 0;
 }
 
@@ -110,7 +115,7 @@ int main(int argc, char **argv) {
 	test_file_read ( num_processes, processes ); 
 
 
-	// TODO: delete, this is temporary code
+	// TODO(@braedenkloke): delete, this is temporary code
 	//for (int i = 0; i < 2; i++) {
 	//	printf("%d\n", processes[i].pid);
 	//}
@@ -133,6 +138,8 @@ int main(int argc, char **argv) {
 	// 	Act on tables
 	// 		increment running time / decremetn CPU time on process in running state
 	//		decrement waiting time on processes in waiting state
+	
+
 	
 
 	
