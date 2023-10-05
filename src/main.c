@@ -21,11 +21,10 @@ struct ready_state_node {
 };
 
 struct process processes[2];
-struct process process1;
-struct process process2;
 
 int max_runtime;
 
+// TODO(@grant): refactor to seperate file and clean-up
 int read_from_file(char *file_name, struct process processes[]){
 	FILE *file = fopen(file_name, "r"); 		// Open File
 	if(file == NULL) 				// If File is non exsistant or empty return 0 and print error
@@ -64,7 +63,9 @@ int read_from_file(char *file_name, struct process processes[]){
 	return num_processes;
 }
 
-
+// TODO(@braedenkloke): refactor to seperate file
+// TODO(@breadenkloke): update headers / columns to reflect final deliverable
+//	- fill with dummy data
 int test_file_read(int num_processes, struct process processes[]){
 
 	FILE *output;
@@ -82,7 +83,7 @@ int test_file_read(int num_processes, struct process processes[]){
 	return 0;
 }
 
-
+// TODO(@braedenkloke): refactor main block
 int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
 
@@ -93,32 +94,8 @@ int main(int argc, char **argv) {
 	// 	create process struct
 	//	store process in processes array
 
-	// TODO(@braedenkloke): delete, uneccesary variables
-	/*
-	process1.pid = 1001;
-	process1.arrival_time = 0;
-	process1.total_cpu_time = 100;
-	process1.io_frequency = 101;
-	process1.io_duration = 100;
-
-	process2.pid = 1002;
-	process2.arrival_time = 100;
-	process2.total_cpu_time = 100;
-	process2.io_frequency = 101;
-	process2.io_duration = 100;
-
-	processes[0] = 	process1;
-	processes[1] = 	process2;
-	*/
-
 	int num_processes = read_from_file ( argv[1], processes );	
 	test_file_read ( num_processes, processes ); 
-
-
-	// TODO(@braedenkloke): delete, this is temporary code
-	//for (int i = 0; i < 2; i++) {
-	//	printf("%d\n", processes[i].pid);
-	//}
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	max_runtime = 10000;
