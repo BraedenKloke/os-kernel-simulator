@@ -28,21 +28,30 @@ int max_runtime;
 
 
 int read_from_file(struct process processes[]){
-	File *file = fopen("input.txt",r); // Open File
-	if(file == NULL) // If File is non exsistant or empty return 0 and print error
+	FILE *file = fopen("resources/test_case_4.csv","r"); 		// Open File
+	if(file == NULL) 				// If File is non exsistant or empty return 0 and print error
 	{
 		printf("Error opening file or file is empty");
 		return 0;
 	}
 
 	int num_processes = 0; // Initialize number of processes to 0 and use as array index
+	
 
-	while(fscanf(file, "%d %d %d %d %d",              // Scan file (assuming that our data is 5 integers seperated by spaces, this will get messed up if we have text in the file, if so we need to skip a line), Note that if we use a CSV file this function works the same, arguments will just need to be seperated by commas
+	// Scan file (assuming that our data is 5 integers seperated by spaces, 
+	// this will get messed up if we have text in the file, if so we need to skip a line), 
+	// Note that if we use a CSV file this function works the same, 
+	// arguments will just need to be seperated by commas
+	// fscanf returns the number of sucsessfully matched and assigned input items, therefor it should return 5 or not proceed as something went wrong
+
+	while ( fscanf (
+			file, 
+			"%d, %d, %d, %d, %d",              
 			&processes[num_processes].pid,
 			&processes[num_processes].arrival_time,
 			&processes[num_processes].total_cpu_time,
 			&processes[num_processes].io_frequency,
-			&processes[num_processes].io_duration) == 5) {      //fscanf returns the number of sucsessfully matched and assigned input items, therefor it should return 5 or not proceed as something went wrong
+			&processes[num_processes].io_duration) == 5 ) {      
 		num_processes++;
 	}
 
@@ -75,6 +84,8 @@ int main() {
 	// 	create process struct
 	//	store process in processes array
 
+	// TODO(@braedenkloke): delete, uneccesary variables
+	/*
 	process1.pid = 1001;
 	process1.arrival_time = 0;
 	process1.total_cpu_time = 100;
@@ -89,10 +100,16 @@ int main() {
 
 	processes[0] = 	process1;
 	processes[1] = 	process2;
+	*/
 
-	for (int i = 0; i < 2; i++) {
-		printf("%d\n", processes[i].pid);
-	}
+	int num_processes = read_from_file ( processes );	
+	test_file_read ( num_processes, processes ); 
+
+
+	// TODO: delete, this is temporary code
+	//for (int i = 0; i < 2; i++) {
+	//	printf("%d\n", processes[i].pid);
+	//}
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	max_runtime = 10000;
