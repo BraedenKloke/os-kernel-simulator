@@ -1,2 +1,2 @@
 #!/bin/sh
-./bin/main
+./bin/main resources/test_case_4.csv

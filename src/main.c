@@ -26,9 +26,8 @@ struct process process2;
 
 int max_runtime;
 
-
-int read_from_file(struct process processes[]){
-	FILE *file = fopen("resources/test_case_4.csv","r"); 		// Open File
+int read_from_file(char *file_name, struct process processes[]){
+	FILE *file = fopen(file_name, "r"); 		// Open File
 	if(file == NULL) 				// If File is non exsistant or empty return 0 and print error
 	{
 		printf("Error opening file or file is empty");
@@ -43,6 +42,11 @@ int read_from_file(struct process processes[]){
 	// Note that if we use a CSV file this function works the same, 
 	// arguments will just need to be seperated by commas
 	// fscanf returns the number of sucsessfully matched and assigned input items, therefor it should return 5 or not proceed as something went wrong
+
+	char c;
+	do {
+		c = fgetc(file);
+	} while (c != '\n');
 
 	while ( fscanf (
 			file, 
@@ -74,9 +78,9 @@ int test_file_read(int num_processes, struct process processes[]){
 }
 
 
-int main() {
+int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
-	
+
 	// 1. transform input csv to process structs and store in array
 	//	Assumption: don't have to handle inputs with more than 30 processes
 	
@@ -102,7 +106,7 @@ int main() {
 	processes[1] = 	process2;
 	*/
 
-	int num_processes = read_from_file ( processes );	
+	int num_processes = read_from_file ( argv[1], processes );	
 	test_file_read ( num_processes, processes ); 
 
 
