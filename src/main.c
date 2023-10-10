@@ -1,14 +1,5 @@
 #include <stdio.h>
 #include "input.h"
-/*  This has been moved to input.h
-struct process {
-	int pid;
-	int arrival_time;
-	int total_cpu_time;
-	int io_frequency;
-	int io_duration;
-};
-*/
 
 struct running_state_table {
 	int pid;
