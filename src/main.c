@@ -28,7 +28,7 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(int time,int pid, char *old_state, char *new_state){
+int print_output(int time,int pid, char old_state[], char new_state[]){
 
 
 	FILE *output;
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
         // Terminate Processes
         if(running.process_is_running == true && running.remaining_cpu_time == 0){
             running.process_is_running = false;
-            print_output(clock, running.running_process.pid,&RUNNING_STATE, &TERMINATED_STATE);
+            print_output(clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
 
         }
 
