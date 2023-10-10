@@ -19,6 +19,7 @@ struct ready_state_struct {
 	struct process queue[20];
 	int first;
 	int last;
+	int queue_size;
 };
 
 struct output_struct {
@@ -49,6 +50,7 @@ int print_output_spooler(){
 
 
     for(int i = 0; i < output_spooler_count; i++) {
+	printf("DEBUG: i: %d\n", i);
         fprintf(output, "%d, ", output_spooler[i].time);
         fprintf(output, "%d, ", output_spooler[i].pid);
         fprintf(output, "%c, ", output_spooler[i].old_state);
@@ -60,7 +62,7 @@ int print_output_spooler(){
 
 // TODO(@braedenkloke): refactor main block
 int main(int argc, char **argv) {
-	printf("Starting Os Kernal Simulator\n");
+	printf("INFO: Starting Os Kernal Simulator\n");
 
 	int num_processes = read_from_file ( argv[1], processes );	
 	
@@ -68,12 +70,13 @@ int main(int argc, char **argv) {
 
 	ready_state.first = 0;
 	ready_state.last = 0;
+	ready_state.queue_size = 0;
 	struct running_state_table running;
 	running.process_is_running = false;
+	running.running_process.pid = -1;
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
-	// TODO: fix segmentation fault error, error occurs when max_runtime = 173
-	max_runtime = 150;
+	max_runtime = 1000;
 	
 
 	for (int clock = 0; clock < max_runtime; clock++) {
@@ -91,7 +94,9 @@ int main(int argc, char **argv) {
 		// Ready Queue
 		for (int i = 0; i < num_processes; i++) {
 			if (processes[i].arrival_time == clock) {
+				printf("DEBUG: adding to ready queue PID: %d\n", processes[i].pid);
 				ready_state.queue[ready_state.last] = processes[i];
+				ready_state.queue_size++;
 				ready_state.last++;
                 output_spooler[output_spooler_count].time = clock;
 				output_spooler[output_spooler_count].pid = processes[i].pid;
@@ -115,12 +120,17 @@ int main(int argc, char **argv) {
 		}
 
 		// Fill Running State
-		if(running.process_is_running == false){
+		if(running.process_is_running == false && ready_state.queue_size > 0){
+			printf("DEBUG: Dispatching process from ready state to running state ...\n");
+
 		    running.running_process.pid = ready_state.queue[ready_state.first].pid;
-            running.running_process.total_cpu_time = ready_state.queue[ready_state.first].total_cpu_time;
-            running.running_process.arrival_time = ready_state.queue[ready_state.first].arrival_time;
-            running.running_process.io_duration = ready_state.queue[ready_state.first].io_duration;
-            running.running_process.io_frequency = ready_state.queue[ready_state.first].io_frequency;
+
+			printf("DEBUG: running.running_process.pid: %d\n", running.running_process.pid);
+		    running.running_process.total_cpu_time = ready_state.queue[ready_state.first].total_cpu_time;
+		    running.running_process.arrival_time = ready_state.queue[ready_state.first].arrival_time;
+		    running.running_process.io_duration = ready_state.queue[ready_state.first].io_duration;
+		    running.running_process.io_frequency = ready_state.queue[ready_state.first].io_frequency;
+			ready_state.queue_size--;
 		    ready_state.first++;
 		    running.running_time = 0;
 		    running.remaining_cpu_time = running.running_process.total_cpu_time;
