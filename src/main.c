@@ -39,16 +39,16 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(struct output_struct output_to_print[]){
+int print_output_spooler(){
 
     FILE *output;
     output = fopen("out/output_4.csv", "w+");
     fprintf(output, "Time, PID, Old State, New State\n");
     for(int i = 0; i < 101; i++) {
-        fprintf(output, "%d, ", output_to_print[i].time);
-        fprintf(output, "%d, ", output_to_print[i].pid);
-        fprintf(output, "%c, ", output_to_print[i].old_state);
-        fprintf(output, "%c\n", output_to_print[i].new_state);
+        fprintf(output, "%d, ", output_spooler[i].time);
+        fprintf(output, "%d, ", output_spooler[i].pid);
+        fprintf(output, "%c, ", output_spooler[i].old_state);
+        fprintf(output, "%c\n", output_spooler[i].new_state);
     }
     fclose(output);
     print_count += 1;
@@ -93,10 +93,11 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                output_spooler[i].time = clock;
-                output_spooler[i].pid = processes[i].pid;
-                output_spooler[i].old_state = NEW_STATE;
-                output_spooler[i].new_state = READY_STATE;
+                		output_spooler[i].time = clock;
+				output_spooler[i].pid = processes[i].pid;
+				output_spooler[i].old_state = NEW_STATE;
+				output_spooler[i].new_state = READY_STATE;
+				printf("PID: %d\n", output_spooler[i].pid);
 			}
 		}
 
@@ -131,6 +132,6 @@ int main(int argc, char **argv) {
 
 	
 	}
-    print_output(output_spooler);
+    print_output_spooler();
 	return 0;
 }
