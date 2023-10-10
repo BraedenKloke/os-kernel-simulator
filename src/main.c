@@ -2,6 +2,12 @@
 #include "input.h"
 #include <stdbool.h>
 
+const char NEW[] = "New";
+const char RUNNING_STATE[] = "Running";
+const char READY_STATE[] = "Ready";
+const char WAITING_STATE[] = "Waiting";
+const char TERMINATED_STATE[] = "Terminated";
+
 struct running_state_table {
     struct process running_process;
 	int running_time;
@@ -22,18 +28,19 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int test_file_read(int num_processes, struct process processes[]){
-	
+int print_output(int time,int pid, char *old_state, char *new_state){
+
+
 	FILE *output;
 	output = fopen("out/output_4.csv", "w+");
 	fprintf(output, "Time, PID, Old State, New State\n");
 
-	for (int i = 0; i < num_processes; i++) {
-		fprintf(output, "%d, ", i);
-	        fprintf(output, "%d, ", processes[i].pid);
-	        fprintf(output, "%d, ", i);
-	        fprintf(output, "%d\n", i);
-	    }
+
+    fprintf(output, "%d, ", time);
+    fprintf(output, "%d, ", pid);
+    fprintf(output, "%s, ", old_state);
+    fprintf(output, "%s\n", new_state);
+
 	fclose(output);
 	return 0;
 }
@@ -51,7 +58,7 @@ int main(int argc, char **argv) {
     struct running_state_table running;
     running.process_is_running = false;
 
-	test_file_read ( num_processes, processes ); 
+	//print_output( num_processes, processes );
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	max_runtime = 10000;
@@ -77,7 +84,14 @@ int main(int argc, char **argv) {
 			}
 		}
 
-        // TODO: terminate process in running state if cpu time = 0
+        // Terminate Processes
+        if(running.process_is_running == true && running.remaining_cpu_time == 0){
+            running.process_is_running = false;
+            print_output(clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
+
+        }
+
+        // Fill Running State
         if(running.process_is_running == false){
             running.running_process = ready_state.queue[ready_state.first];
             ready_state.first++;
@@ -85,7 +99,7 @@ int main(int argc, char **argv) {
             running.remaining_cpu_time = running.running_process.total_cpu_time;
         }
 
-
+        // Tick Clock for running processes and soon to be waiting processes
         if(running.process_is_running == true && running.remaining_cpu_time > 0){
             running.running_time += 1;
             running.remaining_cpu_time -= 1;
