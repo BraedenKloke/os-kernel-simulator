@@ -23,23 +23,32 @@ struct ready_state_struct {
 
 struct process processes[2];
 
+int print_count = 0;
+
 int max_runtime;
 
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(FILE *output,int time,int pid, char old_state, char new_state){
+int print_output(int time,int pid, char old_state, char new_state){
 
+    FILE *output;
+    output = fopen("out/output_4.csv", "w+");
 
+    for(int x = 0; x < print_count; x++){
+        char c;  // Skip First line to avoid csv headers
+        do {
+            c = fgetc(file);
+        } while (c != '\n');
+    }
 
 	fprintf(output, "Time, PID, Old State, New State\n");
-
-
     fprintf(output, "%d, ", time);
     fprintf(output, "%d, ", pid);
     fprintf(output, "%c, ", old_state);
     fprintf(output, "%c\n", new_state);
-
+    fclose(output);
+    print_count += 1;
 	return 0;
 }
 
@@ -47,8 +56,7 @@ int print_output(FILE *output,int time,int pid, char old_state, char new_state){
 int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
 
-    FILE *output;
-    output = fopen("out/output_4.csv", "w+");
+
 
 	int num_processes = read_from_file ( argv[1], processes );	
 	
@@ -82,7 +90,7 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                print_output(output,clock,processes[i].pid,NEW_STATE, READY_STATE);
+                print_output(clock,processes[i].pid,NEW_STATE, READY_STATE);
 			}
 		}
 
@@ -90,7 +98,7 @@ int main(int argc, char **argv) {
         // Terminate Processes
         if(running.process_is_running == true && running.remaining_cpu_time == 0){
             running.process_is_running = false;
-            //print_output(output ,clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
+            //print_output(clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
 
         }
 
@@ -117,6 +125,5 @@ int main(int argc, char **argv) {
 
 	
 	}
-    fclose(output);
 	return 0;
 }
