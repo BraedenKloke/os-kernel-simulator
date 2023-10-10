@@ -116,7 +116,11 @@ int main(int argc, char **argv) {
 
 		// Fill Running State
 		if(running.process_is_running == false){
-		    running.running_process = ready_state.queue[ready_state.first];
+		    running.running_process.pid = ready_state.queue[ready_state.first].pid;
+            running.running_process.total_cpu_time = ready_state.queue[ready_state.first].total_cpu_time;
+            running.running_process.arrival_time = ready_state.queue[ready_state.first].arrival_time;
+            running.running_process.io_duration = ready_state.queue[ready_state.first].io_duration;
+            running.running_process.io_frequency = ready_state.queue[ready_state.first].io_frequency;
 		    ready_state.first++;
 		    running.running_time = 0;
 		    running.remaining_cpu_time = running.running_process.total_cpu_time;
