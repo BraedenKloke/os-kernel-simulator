@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include "input.h"
 #include <stdbool.h>
-
-const char NEW_STATE = 'N';
-const char RUNNING_STATE = 'X';
-const char READY_STATE = 'R';
-const char WAITING_STATE = 'W';
-const char TERMINATED_STATE = 'T';
+#include "constants.h"
 
 struct running_state_table {
     struct process running_process;
