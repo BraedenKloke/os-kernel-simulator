@@ -39,7 +39,7 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(struct output_struct output_to_print[100]){
+int print_output(struct output_struct output_to_print[]){
 
     FILE *output;
     output = fopen("out/output_4.csv", "w+");
