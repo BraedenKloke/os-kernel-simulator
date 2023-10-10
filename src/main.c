@@ -106,12 +106,12 @@ int main(int argc, char **argv) {
 		// Terminate Processes
 		if(running.process_is_running == true && running.remaining_cpu_time == 0){
 		    running.process_is_running = false;
-            output_spooler[output_spooler_count].time = clock;
-            output_spooler[output_spooler_count].pid = running.running_process.pid;
-            output_spooler[output_spooler_count].old_state = RUNNING_STATE;
-            output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
-            printf("PID: %d\n", output_spooler[output_spooler_count].pid);
-            output_spooler_count++;
+		    output_spooler[output_spooler_count].time = clock;
+		    output_spooler[output_spooler_count].pid = running.running_process.pid;
+		    output_spooler[output_spooler_count].old_state = RUNNING_STATE;
+		    output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
+		    printf("PID: %d\n", output_spooler[output_spooler_count].pid);
+		    output_spooler_count++;
 		}
 
 		// Fill Running State
@@ -120,6 +120,13 @@ int main(int argc, char **argv) {
 		    ready_state.first++;
 		    running.running_time = 0;
 		    running.remaining_cpu_time = running.running_process.total_cpu_time;
+			running.process_is_running = true;
+
+		    output_spooler[output_spooler_count].time = clock;
+		    output_spooler[output_spooler_count].pid = running.running_process.pid;
+		    output_spooler[output_spooler_count].old_state = READY_STATE;
+		    output_spooler[output_spooler_count].new_state = RUNNING_STATE;
+		    output_spooler_count++;
 		}
 
 		// Tick Clock for running processes and soon to be waiting processes

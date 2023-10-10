@@ -1,3 +1,6 @@
 Time, PID, Old State, New State
 0, 1001, N, R
+0, 1001, R, X
+5, 1001, X, T
+5, 0, R, X
 100, 1002, N, R
