@@ -7,8 +7,11 @@ struct running_state_table {
 	int remaining_cpu_time;
 };
 
-int front_of_ready_state_queue;
-int end_of_ready_state_queue;
+struct ready_state_struct {
+	struct process queue[20];
+	int first;
+	int last;
+};
 
 struct process processes[2];
 
@@ -38,10 +41,11 @@ int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
 
 	int num_processes = read_from_file ( argv[1], processes );	
+	
+	struct ready_state_struct ready_state;
 
-	front_of_ready_state_queue = 0;
-	end_of_ready_state_queue = 0;
-	struct process ready_state_queue[20];
+	ready_state.first = 0;
+	ready_state.last = 0;
 
 	test_file_read ( num_processes, processes ); 
 
@@ -62,9 +66,8 @@ int main(int argc, char **argv) {
 
 		for (int i = 0; i < num_processes; i++) {
 			if (processes[i].arrival_time == clock) {
-				// add element to ready state queue
-				
-				
+				ready_state.queue[ready_state.last] = processes[i];
+				ready_state.last++;	
 			}
 		}
 
