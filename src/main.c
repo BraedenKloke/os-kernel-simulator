@@ -69,13 +69,14 @@ int main(int argc, char **argv) {
 	//	//d. "waiting sate"
 
 
-
+        // Ready Queue
 		for (int i = 0; i < num_processes; i++) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
 			}
 		}
+
         // TODO: terminate process in running state if cpu time = 0
         if(running.process_is_running == false){
             running.running_process = ready_state.queue[ready_state.first];
@@ -84,12 +85,12 @@ int main(int argc, char **argv) {
             running.remaining_cpu_time = running.running_process.total_cpu_time;
         }
 
-        /*
-        if(running.pid != 0 && running.running_process != 0){
+
+        if(running.process_is_running == true && running.remaining_cpu_time > 0){
             running.running_time += 1;
             running.remaining_cpu_time -= 1;
         }
-        */
+
 	// 	Act on tables
 	// 		increment running time / decremetn CPU time on process in running state
 	//		decrement waiting time on processes in waiting state
