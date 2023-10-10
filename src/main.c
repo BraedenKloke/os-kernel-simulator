@@ -2,7 +2,7 @@
 #include "input.h"
 #include <stdbool.h>
 
-const char NEW = 'n';
+const char NEW_STATE = 'n';
 const char RUNNING_STATE = 'X';
 const char READY_STATE = 'R';
 const char WAITING_STATE = 'W';
@@ -81,9 +81,10 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
+                print_output(clock,processes[i].pid,NEW_STATE, READY_STATE);
 			}
 		}
-        print_output(clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
+
 
         // Terminate Processes
         if(running.process_is_running == true && running.remaining_cpu_time == 0){
