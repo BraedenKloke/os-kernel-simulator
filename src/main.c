@@ -19,7 +19,8 @@ struct ready_state_struct {
 
 struct waiting_state_struct{
     struct process waiting_list[20];
-    int waiting_time;
+    int waiting_time[20];
+    bool is_waiting[20];
 };
 
 struct output_struct {
@@ -33,6 +34,8 @@ static struct output_struct output_spooler[100];
 int output_spooler_count = 0;
 
 struct process processes[2];
+
+struct waiting_state_struct waiting_state;
 
 int max_runtime;
 
@@ -64,8 +67,10 @@ int print_output_spooler(){
 int main(int argc, char **argv) {
 	printf("INFO: Starting Os Kernal Simulator\n");
 
-	int num_processes = read_from_file ( argv[1], processes );	
-	
+	int num_processes = read_from_file ( argv[1], processes );
+
+    int wait_position = 0;
+
 	struct ready_state_struct ready_state;
 
 	ready_state.first = 0;
@@ -142,17 +147,54 @@ int main(int argc, char **argv) {
 		    output_spooler_count++;
 		}
 
-		// Tick Clock for running processes and soon to be waiting processes
-		if(running.process_is_running == true && running.remaining_cpu_time > 0){
+		// Tick Clock for running processes and check if process needs to go to waiting
+		if(clock != 0 && running.process_is_running == true && running.remaining_cpu_time > 0){
 		    running.running_time += 1;
 		    running.remaining_cpu_time -= 1;
             running.running_process.total_cpu_time -= 1;
-            if(running.running_time == running.running_process.io_duration){
-                //go to waiting state
+
+            if(running.running_time == running.running_process.io_frequency){ // Do next state change, running -> waiting
+                waiting_state.waiting_list[wait_position] = running.running_process;
+                waiting_state.waiting_time[wait_position] = running.running_process.io_duration;
+                running.process_is_running = false;
+                waiting_state.is_waiting[wait_position] = true;
+                wait_position += 1;
+                output_spooler[output_spooler_count].time = clock;
+                output_spooler[output_spooler_count].pid = running.running_process.pid;
+                output_spooler[output_spooler_count].old_state = RUNNING_STATE;
+                output_spooler[output_spooler_count].new_state = WAITING_STATE;
+                output_spooler_count++;
             }
 
 		}
 
+
+
+        // handle checking waiting to see if process is done waiting
+        for (int i = 0; i < wait_position; i++){
+            if(waiting_state.is_waiting[i] == true) {
+                if (waiting_state.waiting_time[i] == 0) {
+                    ready_state.queue[ready_state.last] = waiting_state.waiting_list[i];
+                    ready_state.queue_size++;
+                    ready_state.last++;
+                    waiting_state.is_waiting[i] = false;
+                    output_spooler[output_spooler_count].time = clock;
+                    output_spooler[output_spooler_count].pid = waiting_state.waiting_list[i].pid;
+                    output_spooler[output_spooler_count].old_state = WAITING_STATE;
+                    output_spooler[output_spooler_count].new_state = READY_STATE;
+                    output_spooler_count++;
+                }
+            }
+        }
+
+        // handle waiting timer ticking
+        for (int i = 0; i < wait_position; i++) {
+            if(clock != 0 && waiting_state.is_waiting[i] == true){
+                waiting_state.waiting_time[i] -= 1;
+                //("THIS IS WAITING TIME %d \n", waiting_state.waiting_time[i]);
+            }
+
+        }
 
 
 
