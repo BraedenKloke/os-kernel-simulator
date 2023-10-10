@@ -38,8 +38,8 @@ int print_output(int time,int pid, char old_state, char new_state){
 
     fprintf(output, "%d, ", time);
     fprintf(output, "%d, ", pid);
-    fprintf(output, "%s, ", old_state);
-    fprintf(output, "%s\n", new_state);
+    fprintf(output, "%c, ", old_state);
+    fprintf(output, "%c\n", new_state);
 
 	fclose(output);
 	return 0;
