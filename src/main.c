@@ -1,26 +1,10 @@
 #include <stdio.h>
-#include "input.h"
 #include <stdbool.h>
 #include "constants.h"
-
-struct running_state_table {
-    struct process running_process;
-	int running_time;
-	int remaining_cpu_time;
-    bool process_is_running;
-};
-
-struct ready_state_struct {
-	struct process queue[20];
-	int first;
-	int last;
-	int queue_size;
-};
-
-struct waiting_state_struct{
-    struct process waiting_list[20];
-    int waiting_time;
-};
+#include "input.h"
+#include "models/states/waiting.h"
+#include "models/states/ready.h"
+#include "models/states/running.h"
 
 struct output_struct {
     int time;
