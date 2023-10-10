@@ -21,7 +21,7 @@ struct ready_state_struct {
 	int last;
 };
 
-struct process processes[2];
+
 
 int max_runtime;
 
@@ -31,8 +31,7 @@ int max_runtime;
 int print_output(int time,int pid, char old_state, char new_state){
 
 
-	FILE *output;
-	output = fopen("out/output_4.csv", "w+");
+
 	fprintf(output, "Time, PID, Old State, New State\n");
 
 
@@ -41,13 +40,15 @@ int print_output(int time,int pid, char old_state, char new_state){
     fprintf(output, "%c, ", old_state);
     fprintf(output, "%c\n", new_state);
 
-	fclose(output);
 	return 0;
 }
 
 // TODO(@braedenkloke): refactor main block
 int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
+
+    FILE *output;
+    output = fopen("out/output_4.csv", "w+");
 
 	int num_processes = read_from_file ( argv[1], processes );	
 	
@@ -116,6 +117,6 @@ int main(int argc, char **argv) {
 
 	
 	}
-
+    fclose(output);
 	return 0;
 }
