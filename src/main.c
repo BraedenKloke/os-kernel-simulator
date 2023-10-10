@@ -22,6 +22,11 @@ struct ready_state_struct {
 	int queue_size;
 };
 
+struct waiting_state_struct{
+    struct process waiting_list[20];
+    int waiting_time;
+};
+
 struct output_struct {
     int time;
     int pid;
@@ -115,7 +120,6 @@ int main(int argc, char **argv) {
 		    output_spooler[output_spooler_count].pid = running.running_process.pid;
 		    output_spooler[output_spooler_count].old_state = RUNNING_STATE;
 		    output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
-		    printf("PID: %d\n", output_spooler[output_spooler_count].pid);
 		    output_spooler_count++;
 		}
 
@@ -147,11 +151,23 @@ int main(int argc, char **argv) {
 		if(running.process_is_running == true && running.remaining_cpu_time > 0){
 		    running.running_time += 1;
 		    running.remaining_cpu_time -= 1;
+            running.running_process.total_cpu_time -= 1;
+            if(running.running_time == running.running_process.io_duration){
+                //go to waiting state
+            }
+
 		}
+
+
+
 
 		// 	Act on tables
 		// 		increment running time / decremetn CPU time on process in running state
 		//		decrement waiting time on processes in waiting state
+
+
+
+
 	}
 	printf("About to print output spooler ...\n");
 	print_output_spooler();
