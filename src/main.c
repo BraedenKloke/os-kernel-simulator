@@ -2,7 +2,7 @@
 #include "input.h"
 #include <stdbool.h>
 
-const char NEW_STATE = 'n';
+const char NEW_STATE = 'N';
 const char RUNNING_STATE = 'X';
 const char READY_STATE = 'R';
 const char WAITING_STATE = 'W';
@@ -29,10 +29,9 @@ struct output_struct {
 };
 
 static struct output_struct output_spooler[100];
+int output_spooler_count = 0;
 
 struct process processes[2];
-
-int print_count = 1;
 
 int max_runtime;
 
@@ -40,23 +39,22 @@ int max_runtime;
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
 int print_output_spooler(){
-	printf("Inside function print_output_spooler");
+	printf("Inside function print_output_spooler\n");
 
     FILE *output;
     output = fopen("out/output_4.csv", "w+");
     fprintf(output, "Time, PID, Old State, New State\n");
 
-	printf("PID: %d\n", output_spooler[0].pid);
+//	printf("PID: %d\n", output_spooler[0].pid);
 
 
-    for(int i = 0; i < 1; i++) {
+    for(int i = 0; i < output_spooler_count; i++) {
         fprintf(output, "%d, ", output_spooler[i].time);
         fprintf(output, "%d, ", output_spooler[i].pid);
         fprintf(output, "%c, ", output_spooler[i].old_state);
         fprintf(output, "%c\n", output_spooler[i].new_state);
     }
     fclose(output);
-    print_count += 1;
 	return 0;
 }
 
@@ -75,11 +73,11 @@ int main(int argc, char **argv) {
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	// TODO: fix segmentation fault error, error occurs when max_runtime = 173
-	max_runtime = 100;
+	max_runtime = 150;
 	
 
 	for (int clock = 0; clock < max_runtime; clock++) {
-		printf("Clock: %d\n", clock);	
+		//printf("Clock: %d\n", clock);	
 		// 2. start for loop ( i < max(arrival_time) + sum(cpu_time))
 		//	Check states and move processes if appropriate
 		//		note: IF a process is moved to a different state, record in output table
@@ -95,11 +93,12 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                		output_spooler[0].time = clock;
-				output_spooler[0].pid = processes[i].pid;
-				output_spooler[0].old_state = NEW_STATE;
-				output_spooler[0].new_state = READY_STATE;
-				printf("PID: %d\n", output_spooler[0].pid);
+                		output_spooler[output_spooler_count].time = clock;
+				output_spooler[output_spooler_count].pid = processes[i].pid;
+				output_spooler[output_spooler_count].old_state = NEW_STATE;
+				output_spooler[output_spooler_count].new_state = READY_STATE;
+				printf("PID: %d\n", output_spooler[output_spooler_count].pid);
+				output_spooler_count++;
 			}
 		}
 
@@ -127,8 +126,7 @@ int main(int argc, char **argv) {
 		// 		increment running time / decremetn CPU time on process in running state
 		//		decrement waiting time on processes in waiting state
 	}
-	printf("End of for loop.");
-	printf("About to print output spooler ...");
+	printf("About to print output spooler ...\n");
 	print_output_spooler();
 
 	return 0;
