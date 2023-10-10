@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                print_output(clock,processes[i].pid,NEW_STATE, READY_STATE);
+                print_output(output,clock,processes[i].pid,NEW_STATE, READY_STATE);
 			}
 		}
 
