@@ -2,11 +2,11 @@
 #include "input.h"
 #include <stdbool.h>
 
-const char NEW[] = "New";
-const char RUNNING_STATE[] = "Running";
-const char READY_STATE[] = "Ready";
-const char WAITING_STATE[] = "Waiting";
-const char TERMINATED_STATE[] = "Terminated";
+const char NEW = 'n';
+const char RUNNING_STATE = 'X';
+const char READY_STATE = 'R';
+const char WAITING_STATE = 'W';
+const char TERMINATED_STATE = 'T';
 
 struct running_state_table {
     struct process running_process;
@@ -28,7 +28,7 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(int time,int pid, char old_state[], char new_state[]){
+int print_output(int time,int pid, char old_state, char new_state){
 
 
 	FILE *output;
