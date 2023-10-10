@@ -21,6 +21,15 @@ struct ready_state_struct {
 	int last;
 };
 
+struct output_struct {
+    int time;
+    int pid;
+    char old_state;
+    char new_state;
+};
+
+struct output_struct output_spooler[100];
+
 struct process processes[2];
 
 int print_count = 1;
@@ -30,21 +39,17 @@ int max_runtime;
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
-int print_output(int time,int pid, char old_state, char new_state){
+int print_output(struct output_struct output_to_print[100]){
 
     FILE *output;
     output = fopen("out/output_4.csv", "w+");
     fprintf(output, "Time, PID, Old State, New State\n");
-    for(int x = 0; x < print_count; x++){
-        char c;  // Skip First line to avoid csv headers
-        do {
-            c = fgetc(output);
-        } while (c != '\n');
+    for(int i = 0; i < 101; i++) {
+        fprintf(output, "%d, ", output_to_print[i].time);
+        fprintf(output, "%d, ", output_to_print[i].pid);
+        fprintf(output, "%c, ", output_to_print[i].old_state);
+        fprintf(output, "%c\n", output_to_print[i].new_state);
     }
-    fprintf(output, "%d, ", time);
-    fprintf(output, "%d, ", pid);
-    fprintf(output, "%c, ", old_state);
-    fprintf(output, "%c\n", new_state);
     fclose(output);
     print_count += 1;
 	return 0;
@@ -88,7 +93,10 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                print_output(clock,processes[i].pid,NEW_STATE, READY_STATE);
+                output_spooler[i].time = clock;
+                output_spooler[i].pid = processes[i].pid;
+                output_spooler[i].old_state = NEW_STATE;
+                output_spooler[i].new_state = READY_STATE;
 			}
 		}
 
@@ -123,5 +131,6 @@ int main(int argc, char **argv) {
 
 	
 	}
+    print_output(output_spooler);
 	return 0;
 }
