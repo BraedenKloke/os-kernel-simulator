@@ -23,7 +23,7 @@ struct ready_state_struct {
 
 struct process processes[2];
 
-int print_count = 0;
+int print_count = 1;
 
 int max_runtime;
 
@@ -34,15 +34,13 @@ int print_output(int time,int pid, char old_state, char new_state){
 
     FILE *output;
     output = fopen("out/output_4.csv", "w+");
-
+    fprintf(output, "Time, PID, Old State, New State\n");
     for(int x = 0; x < print_count; x++){
         char c;  // Skip First line to avoid csv headers
         do {
             c = fgetc(output);
         } while (c != '\n');
     }
-
-	fprintf(output, "Time, PID, Old State, New State\n");
     fprintf(output, "%d, ", time);
     fprintf(output, "%d, ", pid);
     fprintf(output, "%c, ", old_state);
