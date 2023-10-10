@@ -1,8 +1,9 @@
 ﻿#include "input.h"
+#include "models/process_control_block.h"
 #include <stdio.h>
 #ifndef INPUT_C
 #define INPUT_C
-int read_from_file(char *file_name, struct process processes[]){
+int read_from_file(char *file_name, struct process_control_block processes[]){
 
     FILE *file = fopen(file_name, "r"); 		// Open File
 

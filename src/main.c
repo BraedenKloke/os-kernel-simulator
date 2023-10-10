@@ -5,6 +5,7 @@
 #include "models/states/waiting.h"
 #include "models/states/ready.h"
 #include "models/states/running.h"
+#include "models/process_control_block.h"
 
 struct output_struct {
     int time;
@@ -16,7 +17,7 @@ struct output_struct {
 static struct output_struct output_spooler[100];
 int output_spooler_count = 0;
 
-struct process processes[2];
+struct process_control_block processes[2];
 
 int max_runtime;
 
