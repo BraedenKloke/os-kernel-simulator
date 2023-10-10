@@ -38,7 +38,7 @@ int print_output(int time,int pid, char old_state, char new_state){
     for(int x = 0; x < print_count; x++){
         char c;  // Skip First line to avoid csv headers
         do {
-            c = fgetc(file);
+            c = fgetc(output);
         } while (c != '\n');
     }
 
