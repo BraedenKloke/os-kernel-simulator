@@ -7,11 +7,8 @@ struct running_state_table {
 	int remaining_cpu_time;
 };
 
-struct ready_state_node {
-	int pid;
-	int remaining_cpu_time;
-	struct ready_state_node *next;
-};
+int front_of_ready_state_queue;
+int end_of_ready_state_queue;
 
 struct process processes[2];
 
@@ -24,7 +21,7 @@ int test_file_read(int num_processes, struct process processes[]){
 	
 	FILE *output;
 	output = fopen("out/output_4.csv", "w+");
-	printf("Time, PID, Old State, New State\n");
+	fprintf(output, "Time, PID, Old State, New State\n");
 
 	for (int i = 0; i < num_processes; i++) {
 		fprintf(output, "%d, ", i);
@@ -40,21 +37,19 @@ int test_file_read(int num_processes, struct process processes[]){
 int main(int argc, char **argv) {
 	printf("Starting Os Kernal Simulator\n");
 
-	// 1. transform input csv to process structs and store in array
-	//	Assumption: don't have to handle inputs with more than 30 processes
-	
-	// for each csv item
-	// 	create process struct
-	//	store process in processes array
-
 	int num_processes = read_from_file ( argv[1], processes );	
+
+	front_of_ready_state_queue = 0;
+	end_of_ready_state_queue = 0;
+	struct process ready_state_queue[20];
+
 	test_file_read ( num_processes, processes ); 
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	max_runtime = 10000;
 	
 
-	for (int i = 0; i < max_runtime; i++) {
+	for (int clock = 0; clock < max_runtime; clock++) {
 	
 	// 2. start for loop ( i < max(arrival_time) + sum(cpu_time))
 	//	Check states and move processes if appropriate
@@ -64,6 +59,14 @@ int main(int argc, char **argv) {
 	//	b. "running state" terminate process if CPU time = 0
 	//	c. if running state is empty, move process from ready to running
 	//	//d. "waiting sate"
+
+		for (int i = 0; i < num_processes; i++) {
+			if (processes[i].arrival_time == clock) {
+				// add element to ready state queue
+				
+				
+			}
+		}
 
 	// 	Act on tables
 	// 		increment running time / decremetn CPU time on process in running state
