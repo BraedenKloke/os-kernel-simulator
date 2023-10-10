@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 			if (processes[i].arrival_time == clock) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.last++;
-                		output_spooler[output_spooler_count].time = clock;
+                output_spooler[output_spooler_count].time = clock;
 				output_spooler[output_spooler_count].pid = processes[i].pid;
 				output_spooler[output_spooler_count].old_state = NEW_STATE;
 				output_spooler[output_spooler_count].new_state = READY_STATE;
@@ -106,6 +106,12 @@ int main(int argc, char **argv) {
 		// Terminate Processes
 		if(running.process_is_running == true && running.remaining_cpu_time == 0){
 		    running.process_is_running = false;
+            output_spooler[output_spooler_count].time = clock;
+            output_spooler[output_spooler_count].pid = running.running_process.pid;
+            output_spooler[output_spooler_count].old_state = RUNNING_STATE;
+            output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
+            printf("PID: %d\n", output_spooler[output_spooler_count].pid);
+            output_spooler_count++;
 		}
 
 		// Fill Running State
