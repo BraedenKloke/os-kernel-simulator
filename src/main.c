@@ -17,22 +17,20 @@ struct process processes[2];
 
 int max_runtime;
 
-
 // TODO(@braedenkloke): refactor to seperate file
 // TODO(@breadenkloke): update headers / columns to reflect final deliverable
 //	- fill with dummy data
 int test_file_read(int num_processes, struct process processes[]){
-
+	
 	FILE *output;
 	output = fopen("out/output_4.csv", "w+");
+	printf("Time, PID, Old State, New State\n");
 
 	for (int i = 0; i < num_processes; i++) {
-		fprintf(output, "Process: %d,", i);
-	        fprintf(output, "PID: %d,", processes[i].pid);
-	        fprintf(output, "Arrival Time: %d,", processes[i].arrival_time);
-	        fprintf(output, "Total CPU Time: %d,", processes[i].total_cpu_time);
-	        fprintf(output, "I/O Frequency: %d,", processes[i].io_frequency);
-	        fprintf(output, "I/O Duration: %d\n", processes[i].io_duration);
+		fprintf(output, "%d, ", i);
+	        fprintf(output, "%d, ", processes[i].pid);
+	        fprintf(output, "%d, ", i);
+	        fprintf(output, "%d\n", i);
 	    }
 	fclose(output);
 	return 0;
