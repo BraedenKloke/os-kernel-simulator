@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
 				ready_state.last++;
 			}
 		}
+        print_output(clock, running.running_process.pid,RUNNING_STATE, TERMINATED_STATE);
 
         // Terminate Processes
         if(running.process_is_running == true && running.remaining_cpu_time == 0){
