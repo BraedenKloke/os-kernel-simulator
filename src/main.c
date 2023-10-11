@@ -6,50 +6,17 @@
 #include "models/states/ready.h"
 #include "models/states/running.h"
 #include "models/process_control_block.h"
-
-struct output_struct {
-    int time;
-    int pid;
-    char old_state;
-    char new_state;
-};
-
-static struct output_struct output_spooler[100];
-int output_spooler_count = 0;
+#include "models/output_spool_entry.h"
+#include "output_spooler.h"
 
 struct process_control_block processes[2];
 
 int max_runtime;
 
-// TODO(@braedenkloke): refactor to seperate file
-// TODO(@breadenkloke): update headers / columns to reflect final deliverable
-//	- fill with dummy data
-int print_output_spooler(){
-	printf("Inside function print_output_spooler\n");
-
-    FILE *output;
-    output = fopen("out/output_4.csv", "w+");
-    fprintf(output, "Time, PID, Old State, New State\n");
-
-//	printf("PID: %d\n", output_spooler[0].pid);
-
-
-    for(int i = 0; i < output_spooler_count; i++) {
-	printf("DEBUG: i: %d\n", i);
-        fprintf(output, "%d, ", output_spooler[i].time);
-        fprintf(output, "%d, ", output_spooler[i].pid);
-        fprintf(output, "%c, ", output_spooler[i].old_state);
-        fprintf(output, "%c\n", output_spooler[i].new_state);
-    }
-    fclose(output);
-	return 0;
-}
-
-// TODO(@braedenkloke): refactor main block
 int main(int argc, char **argv) {
 	printf("INFO: Starting Os Kernal Simulator\n");
 
-	int num_processes = read_from_file ( argv[1], processes );	
+	int num_processes = read_from_file(argv[1], processes);	
 	
 	struct ready_state_struct ready_state;
 
@@ -59,6 +26,7 @@ int main(int argc, char **argv) {
 	struct running_state_table running;
 	running.process_is_running = false;
 	running.running_process.pid = -1;
+
 
 	// TODO: max(arrival_time) + sum(total_cpu_time)
 	max_runtime = 1000;
@@ -83,24 +51,23 @@ int main(int argc, char **argv) {
 				ready_state.queue[ready_state.last] = processes[i];
 				ready_state.queue_size++;
 				ready_state.last++;
-                output_spooler[output_spooler_count].time = clock;
-				output_spooler[output_spooler_count].pid = processes[i].pid;
-				output_spooler[output_spooler_count].old_state = NEW_STATE;
-				output_spooler[output_spooler_count].new_state = READY_STATE;
-				printf("PID: %d\n", output_spooler[output_spooler_count].pid);
-				output_spooler_count++;
+				
+				struct output_spool_entry data;
+				data = create_output_spool_entry(clock, processes[i].pid, NEW_STATE, READY_STATE);
+				write_to_output_spool(data, output_spool, output_spool_size);
+				output_spool_size++;
 			}
 		}
 
 
 		// Terminate Processes
 		if(running.process_is_running == true && running.remaining_cpu_time == 0){
-		    running.process_is_running = false;
-		    output_spooler[output_spooler_count].time = clock;
-		    output_spooler[output_spooler_count].pid = running.running_process.pid;
-		    output_spooler[output_spooler_count].old_state = RUNNING_STATE;
-		    output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
-		    output_spooler_count++;
+			running.process_is_running = false;
+
+			struct output_spool_entry data;
+			data = create_output_spool_entry(clock, running.running_process.pid, RUNNING_STATE, TERMINATED_STATE);
+			write_to_output_spool(data, output_spool, output_spool_size);
+			output_spool_size++;
 		}
 
 		// Fill Running State
@@ -120,11 +87,10 @@ int main(int argc, char **argv) {
 		    running.remaining_cpu_time = running.running_process.total_cpu_time;
 			running.process_is_running = true;
 
-		    output_spooler[output_spooler_count].time = clock;
-		    output_spooler[output_spooler_count].pid = running.running_process.pid;
-		    output_spooler[output_spooler_count].old_state = READY_STATE;
-		    output_spooler[output_spooler_count].new_state = RUNNING_STATE;
-		    output_spooler_count++;
+			struct output_spool_entry data;
+			data = create_output_spool_entry(clock, running.running_process.pid, READY_STATE, RUNNING_STATE);
+			write_to_output_spool(data, output_spool, output_spool_size);
+			output_spool_size++;
 		}
 
 		// Tick Clock for running processes and soon to be waiting processes
@@ -149,8 +115,7 @@ int main(int argc, char **argv) {
 
 
 	}
-	printf("About to print output spooler ...\n");
-	print_output_spooler();
+	write_output_spool_to_file(output_spool, "out/output_4.csv");
 
 	return 0;
 }
