@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 
 
 	}
-	write_output_spool_to_file(output_spool, "out/output_4.csv", output_spool_size);
+	write_output_spool_to_file(output_spool, "out/output.csv", output_spool_size);
 
 	return 0;
 }
