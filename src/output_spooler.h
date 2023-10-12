@@ -3,8 +3,8 @@
 
 #include "models/output_spool_entry.h"
 
-static struct output_spool_entry output_spool[100];
-int output_spool_size;
+static struct output_spool_entry output_spool[1000];
+static int output_spool_size;
 
 struct output_spool_entry create_output_spool_entry(
         int time,
@@ -19,6 +19,6 @@ int write_to_output_spool(
 	int size
 );
 
-int write_output_spool_to_file(struct output_spool_entry output_spool[], char *output_file_name);
+int write_output_spool_to_file(struct output_spool_entry output_spool[], char *output_file_name, int size);
 
 #endif

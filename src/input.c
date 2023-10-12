@@ -41,6 +41,13 @@ int read_from_file(char *file_name, struct process_control_block processes[]){
         num_processes++;
     }
 
+	for(int i = 0; i < num_processes; i++){
+		processes[i].running_time = 0;
+		processes[i].waiting_time = 0;
+		processes[i].remaining_cpu_time = processes[i].total_cpu_time;
+		processes[i].is_waiting = false;
+	}
+
 
     fclose(file);
     return num_processes;

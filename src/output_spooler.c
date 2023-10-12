@@ -32,14 +32,14 @@ int write_to_output_spool(
 };
 
 // TODO(@braedenkloke): remove arg output_spool[], there is only one spool and the spooler should control it
-int write_output_spool_to_file(struct output_spool_entry output_spool[], char *output_file_name) {
+int write_output_spool_to_file(struct output_spool_entry output_spool[], char *output_file_name, int size) {
         printf("INFO: Writing output spool to file ...\n");
 
 	FILE *output_file;
 	output_file = fopen(output_file_name, "w+");
 	fprintf(output_file, "Time, PID, Old State, New State\n");
 
-        for(int i = 0; i < 20; i++) {
+        for(int i = 0; i < size; i++) {
                 fprintf(output_file, "%d, ", output_spool[i].time);
                 fprintf(output_file, "%d, ", output_spool[i].pid);
                 fprintf(output_file, "%c, ", output_spool[i].old_state);
