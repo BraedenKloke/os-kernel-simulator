@@ -11,16 +11,16 @@ struct running_state_table {
 };
 
 struct ready_state_struct {
-	struct process queue[20];
+	struct process queue[1000];
 	int first;
 	int last;
 	int queue_size;
 };
 
 struct waiting_state_struct{
-    struct process waiting_list[20];
-    int waiting_time[20];
-    bool is_waiting[20];
+    struct process waiting_list[1000];
+    int waiting_time[1000];
+    bool is_waiting[1000];
 };
 
 struct output_struct {
@@ -95,23 +95,29 @@ int main(int argc, char **argv) {
 		//	c. if running state is empty, move process from ready to running
 		//	//d. "waiting state"
 
-
-        // handle checking waiting to see if process is done waiting if so go from waiting to running state
-        for (int i = 0; i < wait_position; i++){
-            if(waiting_state.is_waiting[i] == true) {
-                if (waiting_state.waiting_time[i] == 0) {
-                    ready_state.queue[ready_state.last] = waiting_state.waiting_list[i];
-                    ready_state.queue_size++;
-                    ready_state.last++;
-                    waiting_state.is_waiting[i] = false;
-                    output_spooler[output_spooler_count].time = clock;
-                    output_spooler[output_spooler_count].pid = waiting_state.waiting_list[i].pid;
-                    output_spooler[output_spooler_count].old_state = WAITING_STATE;
-                    output_spooler[output_spooler_count].new_state = READY_STATE;
-                    output_spooler_count++;
-                }
-            }
+        // Terminate Processes
+        if(running.process_is_running == true && running.remaining_cpu_time == 0){
+            running.process_is_running = false;
+            output_spooler[output_spooler_count].time = clock;
+            output_spooler[output_spooler_count].pid = running.running_process.pid;
+            output_spooler[output_spooler_count].old_state = RUNNING_STATE;
+            output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
+            output_spooler_count++;
         }
+
+        if(running.running_time == running.running_process.io_frequency){ // Do next state change, running -> waiting
+            waiting_state.waiting_list[wait_position] = running.running_process;
+            waiting_state.waiting_time[wait_position] = running.running_process.io_duration;
+            running.process_is_running = false;
+            waiting_state.is_waiting[wait_position] = true;
+            wait_position += 1;
+            output_spooler[output_spooler_count].time = clock;
+            output_spooler[output_spooler_count].pid = running.running_process.pid;
+            output_spooler[output_spooler_count].old_state = RUNNING_STATE;
+            output_spooler[output_spooler_count].new_state = WAITING_STATE;
+            output_spooler_count++;
+        }
+
 
 		// Ready Queue
 		for (int i = 0; i < num_processes; i++) {
@@ -129,28 +135,21 @@ int main(int argc, char **argv) {
 			}
 		}
 
-
-
-
-        // Tick Clock for running processes and check if process needs to go to waiting
-        if(clock != 0 && running.process_is_running == true && running.remaining_cpu_time > 0){
-            running.running_time += 1;
-            running.remaining_cpu_time -= 1;
-            running.running_process.total_cpu_time -= 1;
-
-            if(running.running_time == running.running_process.io_frequency){ // Do next state change, running -> waiting
-                waiting_state.waiting_list[wait_position] = running.running_process;
-                waiting_state.waiting_time[wait_position] = running.running_process.io_duration;
-                running.process_is_running = false;
-                waiting_state.is_waiting[wait_position] = true;
-                wait_position += 1;
-                output_spooler[output_spooler_count].time = clock;
-                output_spooler[output_spooler_count].pid = running.running_process.pid;
-                output_spooler[output_spooler_count].old_state = RUNNING_STATE;
-                output_spooler[output_spooler_count].new_state = WAITING_STATE;
-                output_spooler_count++;
+        // handle checking waiting to see if process is done waiting if so go from waiting to running state
+        for (int i = 0; i < wait_position; i++){
+            if(waiting_state.is_waiting[i] == true) {
+                if (waiting_state.waiting_time[i] == 0) {
+                    ready_state.queue[ready_state.last] = waiting_state.waiting_list[i];
+                    ready_state.queue_size++;
+                    ready_state.last++;
+                    waiting_state.is_waiting[i] = false;
+                    output_spooler[output_spooler_count].time = clock;
+                    output_spooler[output_spooler_count].pid = waiting_state.waiting_list[i].pid;
+                    output_spooler[output_spooler_count].old_state = WAITING_STATE;
+                    output_spooler[output_spooler_count].new_state = READY_STATE;
+                    output_spooler_count++;
+                }
             }
-
         }
 
 		// Fill Running State
@@ -178,7 +177,14 @@ int main(int argc, char **argv) {
 		}
 
 
+        // Tick Clock for running processes and check if process needs to go to waiting
+        if(running.process_is_running == true && running.remaining_cpu_time > 0){
+            running.running_time += 1;
+            running.remaining_cpu_time -= 1;
+            running.running_process.total_cpu_time -= 1;
 
+
+        }
 
         // handle waiting timer ticking
         for (int i = 0; i < wait_position; i++) {
@@ -190,15 +196,7 @@ int main(int argc, char **argv) {
         }
 
 
-        // Terminate Processes
-        if(running.process_is_running == true && running.remaining_cpu_time == 0){
-            running.process_is_running = false;
-            output_spooler[output_spooler_count].time = clock;
-            output_spooler[output_spooler_count].pid = running.running_process.pid;
-            output_spooler[output_spooler_count].old_state = RUNNING_STATE;
-            output_spooler[output_spooler_count].new_state = TERMINATED_STATE;
-            output_spooler_count++;
-        }
+
 
 
 		// 	Act on tables
