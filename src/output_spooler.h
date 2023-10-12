@@ -9,8 +9,8 @@ static int output_spool_size;
 struct output_spool_entry create_output_spool_entry(
         int time,
         int pid,
-        char old_state,
-        char new_state
+        char old_state[],
+        char *new_state
 );
 
 int write_to_output_spool(

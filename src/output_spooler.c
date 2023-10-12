@@ -4,8 +4,8 @@
 struct output_spool_entry create_output_spool_entry(
 	int time,
 	int pid,
-	char old_state,
-	char new_state 
+	char *old_state,
+	char *new_state 
 ){
 	struct output_spool_entry entry;
 
@@ -42,8 +42,8 @@ int write_output_spool_to_file(struct output_spool_entry output_spool[], char *o
         for(int i = 0; i < size; i++) {
                 fprintf(output_file, "%d, ", output_spool[i].time);
                 fprintf(output_file, "%d, ", output_spool[i].pid);
-                fprintf(output_file, "%c, ", output_spool[i].old_state);
-                fprintf(output_file, "%c\n", output_spool[i].new_state);
+                fprintf(output_file, "%s, ", output_spool[i].old_state);
+                fprintf(output_file, "%s\n", output_spool[i].new_state);
         }
 
 	fclose(output_file);	
