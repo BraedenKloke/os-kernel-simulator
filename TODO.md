@@ -2,22 +2,23 @@
 
 # Completed
 - [X] (@braeden) docs(assignment questions): write-up completed questions and gantt charts
+- [X] (@braeden) test: run profs code with sh scripts
 
 # Work in Progress (MAX_WIP=1)
+- [ ] (@braeden) refactor: merge new code base into main
 - [ ] (@braeden) chore(email prof): re: question d of assignment, clarification
 	- scheduler to implement: 1. re: case presented in Part I. c.)
 	- assumption: external priorities: add a priority field
-- [ ] (@braeden) test: run profs code with sh scripts
 - [ ] (@grant) test: run profs code with bat scripts
-- [ ] (@braeden) chore: download sealion
+- [ ] (@braeden) chore: download sealion, use cmail
 
 # Backlog
-- [ ] docs(readme): add running instructions
-- [ ] fix(output): should create unique output files for each unique input
-- [ ] chore: review assignment 1 solution given by prof
-- [ ] chore: submit file
-- [ ] test: compare termination times of assignment 1 solution against prof's assignment 1 solution
-- [ ] sealion
+- [ ] (@grant) docs(readme): add build instructions for Windows
+- [ ] (@braeden) docs(readme): add build instructions for Linux
+- [ ] (@grant) docs(readme): add test instructions for Windows
+- [ ] (@braeden) docs(readme): add test instructions for Linux
+- [ ] (@braeden) docs(readme): add acknowledgements to README
+- [ ] chore: submit assignment
 
 ## Schedulers to implement
 - [ ] feat(scheduler): add scheduler function to encapsulate scheduling algorithms (include c file and header)

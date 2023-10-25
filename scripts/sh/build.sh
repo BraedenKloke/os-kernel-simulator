@@ -1,4 +1,6 @@
 #!/bin/sh
-echo "Starting build script..."
-gcc src/main.c src/output_spooler.c src/input.c -o bin/main
-echo "... Build complete"
+#
+# Builds project.
+
+gcc src/main/main.c \
+	-o out/assignment2.o
