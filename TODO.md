@@ -1,9 +1,9 @@
 # TODO
 
 # Completed
+- [X] (@braeden) docs(assignment questions): write-up completed questions and gantt charts
 
 # Work in Progress (MAX_WIP=1)
-- [ ] (@braeden) docs(assignment questions): write-up completed questions and gantt charts
 - [ ] (@braeden) chore(email prof): re: question d of assignment, clarification
 	- scheduler to implement: 1. re: case presented in Part I. c.)
 	- assumption: external priorities: add a priority field
