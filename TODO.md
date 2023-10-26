@@ -3,14 +3,16 @@
 # Completed
 - [X] (@braeden) docs(assignment questions): write-up completed questions and gantt charts
 - [X] (@braeden) test: run profs code with sh scripts
+- [X] (@braeden) refactor: merge new code base into main
+- [X] (@braeden) chore: download sealion, use cmail
 
-# Work in Progress (MAX_WIP=1)
-- [ ] (@braeden) refactor: merge new code base into main
+# Waiting to Hear Back
 - [ ] (@braeden) chore(email prof): re: question d of assignment, clarification
 	- scheduler to implement: 1. re: case presented in Part I. c.)
 	- assumption: external priorities: add a priority field
+
+# Work in Progress (MAX_WIP=1)
 - [ ] (@grant) test: run profs code with bat scripts
-- [ ] (@braeden) chore: download sealion, use cmail
 
 # Backlog
 - [ ] (@grant) docs(readme): add build instructions for Windows
