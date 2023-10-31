@@ -217,9 +217,9 @@ node_t read_proc_from_file(char *input_file){
     //Pid;Arrival Time;Total CPU Time;I/O Frequency;I/O Duration
     fgets(row, MAXCHAR, f);
     // Read the remainder of the rows until you get to the end of the file
-    do {
+    while(fgets(row, MAXCHAR, f) != NULL) {
         // get the next data row
-        fgets(row, MAXCHAR, f);
+        //fgets(row, MAXCHAR, f);
         // make sure it has at least enough char to be valid
         if(strlen(row)<10) continue;
         // atoi turns a string into an integer
@@ -236,8 +236,9 @@ node_t read_proc_from_file(char *input_file){
         proc = create_proc(pid, arrival_time, total_cpu_time, io_frequency, io_duration);
         node = create_node(proc);
         new_list = push_node(new_list, node);
-        
-    } while (feof(f) != true);
+
+
+    }
 
     return new_list;
 }
