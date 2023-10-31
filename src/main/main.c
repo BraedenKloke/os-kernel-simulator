@@ -237,7 +237,6 @@ node_t read_proc_from_file(char *input_file){
         node = create_node(proc);
         new_list = push_node(new_list, node);
 
-
     }
 
     return new_list;
@@ -293,6 +292,16 @@ void clean_up(node_t list){
         free(temp);
     }
 }
+
+
+void scheduluer(int schedule){
+    //This is where we will recieve the input from the user as which schedule we are using
+    //ex: 0 for FCFS, 1 for Priorities, 2 for RR with 100ms timeout
+
+
+
+}
+
 
 int main( int argc, char *argv[]) {
     int next_step = 0, cpu_clock = 0;
@@ -374,6 +383,8 @@ int main( int argc, char *argv[]) {
             if(ready_list!=NULL){
                 running = ready_list;
                 running->p->s = STATE_RUNNING;
+                //This is where we call the scheduler and return a value which will be the one to enter the running state or will tell us how to proceed.
+                //EX if scheduler returns the FCFS maybe we do nothing, or if we give the scheduler the FCFS input it can return the next process to enter the running state
                 remove_node(&ready_list, running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
             } else{
