@@ -9,12 +9,13 @@
 - [X] (@braeden) test: run profs code with sh scripts
 - [X] (@braeden) refactor: merge new code base into main
 - [X] (@braeden) chore: download sealion, use cmail
+- [X] (@grant) test: create bat scripts
+- [X] (@grant) test: run profs code with bat scripts
 
 # Waiting to Hear Back
 - [ ] (@braeden) chore(email prof): re: question d of assignment, clarification
 	- scheduler to implement: 1. re: case presented in Part I. c.)
 	- assumption: external priorities: add a priority field
-- [ ] (@grant) test: run profs code with bat scripts
 
 # Work in Progress (MAX_WIP=1)
 
@@ -32,7 +33,7 @@
 - [ ] feat(scheduler): first come first server alg
 - [ ] feat(scheduler): external prioriites algorithm
 - [ ] feat(scheduler): round robin alg
-- [ ] (@grant) test: create bat scripts
+
 
 
 ## Simulation execution
