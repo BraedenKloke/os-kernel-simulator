@@ -21,6 +21,7 @@
 
 // Macro to return the min of a and b
 #define min(a, b) (((a) < (b)) ? (a) : (b))
+#define NUM_MEMORY_PARTITIONS 4
 
 // An enumerator (enum for short) to represent the state
 enum STATE {
