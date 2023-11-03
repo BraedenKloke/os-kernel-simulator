@@ -47,6 +47,17 @@ struct process {
     enum STATE s;
 };
 
+// This structure represents a partition of main memory.
+struct memory_partition {
+    int size;
+    bool is_available;
+};
+
+// This structure represents a main memory divided into fixed partitions.
+struct main_memory {
+    struct memory_partition partitions[NUM_MEMORY_PARTITIONS];
+};
+
 // This structure is a linked list of processes
 // This linked list was adapted from the code presented in the following tutorial:
 // https://www.hackerearth.com/practice/data-structures/linked-list/singly-linked-list/tutorial/#:~:text=In%20C%20language%2C%20a%20linked,address%20of%20the%20next%20node.
@@ -287,7 +298,7 @@ void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes)
 *   - memory_partition_sizes: Array to store memory partition sizes
 * There is no return value.
 */
-
+/*
 void construct_main_memory(struct main_memory mem, int* memory_partition_sizes) {
     int i;
 
@@ -296,6 +307,7 @@ void construct_main_memory(struct main_memory mem, int* memory_partition_sizes) 
         mem.partitions[i].is_available = true;
     }
 }
+ */
 
 /* FUNCTION DESCRIPTION: get_time_to_next_event
 * This function returns the amount of simulation time until the next event occurs
