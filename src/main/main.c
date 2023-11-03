@@ -32,8 +32,8 @@ enum STATE {
 };
 static const char *STATES[] = { "NEW", "READY", "RUNNING", "WAITING", "TERMINATED"};
 
-// A structure containing all the relovant meta data for a process, this is the PCB like struct
-// The io_time_remaining is used in two ways: 
+// A structure containing all the relevant metadata for a process, this is the PCB like struct
+// The io_time_remaining is used in two ways:
 // it counts how long until the next io call and how long until a current io call is complete
 struct process {
     int pid;
@@ -42,6 +42,7 @@ struct process {
     int cpu_time_remaining;
     int io_frequency;
     int io_duration;
+    int priority;
     int io_time_remaining;
     enum STATE s;
 };
@@ -61,7 +62,7 @@ typedef struct node *node_t;
 
 /* FUNCTION DESCRIPTION: create_proc
 * This function creates a new process structure.
-* The parameters are self descriptive: 
+* The parameters are self descriptive:
 *    -pid
 *    -arrival_time
 *    -total_cpu_time
@@ -69,10 +70,10 @@ typedef struct node *node_t;
 *    -io_duration
 * The return value is a pointer to new process structure
 */
-proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequency, int io_duration){
+proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequency, int io_duration, int priority){
     // Initialize memory
-    proc_t temp; 
-    temp = (proc_t) malloc(sizeof(struct process)); 
+    proc_t temp;
+    temp = (proc_t) malloc(sizeof(struct process));
 
     // Initialize contents
     // The cpu time remaining starts at total CPU time
@@ -83,6 +84,7 @@ proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequen
     temp->cpu_time_remaining = total_cpu_time;
     temp->io_frequency = io_frequency;
     temp->io_duration = io_duration;
+    temp->priority = priority;
     temp->io_time_remaining = io_frequency;
     temp->s = STATE_NEW;
     return temp;
@@ -90,14 +92,14 @@ proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequen
 
 /* FUNCTION DESCRIPTION: create_node
 * This function creates a new  list node.
-* The parameters are: 
+* The parameters are:
 *    -p, a pointer to the process structure to be stored in this node
 * The return value is a pointer to the new node
 */
 node_t create_node(proc_t p){
     // Initialize memory
-    node_t temp; 
-    temp = (node_t) malloc(sizeof(struct node)); 
+    node_t temp;
+    temp = (node_t) malloc(sizeof(struct node));
 
     // Initialize contents
     temp->next = NULL;
@@ -111,7 +113,7 @@ node_t create_node(proc_t p){
 */
 void print_nodes(node_t head) {
     node_t current = head;
-    proc_t p; 
+    proc_t p;
 
     if(head == NULL){
         printf("EMPTY\n");
@@ -125,6 +127,7 @@ void print_nodes(node_t head) {
         printf("Time Remaining: %dms of %dms\n", p->cpu_time_remaining, p->total_cpu_time);
         printf("IO Duration: %dms\n", p->io_duration);
         printf("IO Frequency: %dms\n", p->io_frequency);
+        printf("Process Priority: %dms\n", p->priority);
         printf("Current state: %s\n", STATES[p->s]);
         printf("Time until next IO event: %dms\n", p->io_time_remaining);
         printf("\n");
@@ -134,7 +137,7 @@ void print_nodes(node_t head) {
 
 /* FUNCTION DESCRIPTION: push_node
 * This function adds a node to the back of the list (as though its a queue).
-* The parameters are: 
+* The parameters are:
 *    -head points to the head in the list
 *    -temp is the node to be added
 * The return value is a pointer to the list
@@ -145,7 +148,7 @@ node_t push_node(node_t head, node_t temp){
 
     // If the list is empty then we return a list with only the new node
     if(head == NULL){
-        head = temp;     
+        head = temp;
     } else {
         // Itterate through the list to add the new node at the end
         // The last node always points to NULL, so we get the next nodes until this happens
@@ -163,9 +166,9 @@ node_t push_node(node_t head, node_t temp){
 }
 
 /* FUNCTION DESCRIPTION: remove_node
-* This function removes a node from within the linked list. 
+* This function removes a node from within the linked list.
 * IT DOES NOT FREE THE MEMORY ALLOCATED FOR THE NODE.
-* The parameters are: 
+* The parameters are:
 *    -head points to the pointer that is the front of the list
 *    -to_be_removed points to the node that is to be removed
 * The return value is an int indicating success or failure
@@ -176,9 +179,9 @@ int remove_node(node_t *head, node_t to_be_removed){
         *head = (*head)->next;
         to_be_removed->next = NULL;
         return 1;
-    } else { 
+    } else {
         temp = *head;
-        // Itterate through the list until we've checked every node
+        // Iterate through the list until we've checked every node
         while(temp->next != NULL){
             prev = temp;
             temp = temp->next;
@@ -197,27 +200,27 @@ int remove_node(node_t *head, node_t to_be_removed){
 
 /* FUNCTION DESCRIPTION: read_proc_from_file
 * Parse the CSV input file and load its contents into a list
-* The parameters are: 
-* The return value is a list of thes new prcesses
+* The parameters are:
+* The return value is a list of these new processes
 */
 node_t read_proc_from_file(char *input_file){
     int MAXCHAR = 128;
     char row[MAXCHAR];
     node_t new_list=NULL, node;
     proc_t proc;
-    int pid, arrival_time, total_cpu_time, io_frequency, io_duration;
+    int pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority;
 
     FILE* f = fopen(input_file, "r");
     if(f == NULL){
         // file not opened, fail gracefully
         printf("NULL FILE\n\n\n\n");
-      //  assert(false);
-    } 
+        //  assert(false);
+    }
     // Get the first row, which has the header values
     //Pid;Arrival Time;Total CPU Time;I/O Frequency;I/O Duration
     fgets(row, MAXCHAR, f);
     // Read the remainder of the rows until you get to the end of the file
-    while(fgets(row, MAXCHAR, f) != NULL) {
+    while(fgets(row, MAXCHAR, f)){
         // get the next data row
         //fgets(row, MAXCHAR, f);
         // make sure it has at least enough char to be valid
@@ -231,9 +234,10 @@ node_t read_proc_from_file(char *input_file){
         total_cpu_time = atoi(strtok(NULL, ","));
         io_frequency = atoi(strtok(NULL, ","));
         io_duration = atoi(strtok(NULL, ","));
+        priority = atoi(strtok(NULL, ","));
 
         // We create a process struct and pass it too create node, then add this node to the new_list
-        proc = create_proc(pid, arrival_time, total_cpu_time, io_frequency, io_duration);
+        proc = create_proc(pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority);
         node = create_node(proc);
         new_list = push_node(new_list, node);
 
@@ -242,9 +246,60 @@ node_t read_proc_from_file(char *input_file){
     return new_list;
 }
 
+/* FUNCTION DESCRIPTION: read_memory_schema_from_file
+* This function adds the memory partition to an array
+* The parameters are:
+*    - input_file: File name within project directory
+*   - memory_partition_sizes: Array to store memory partition sizes
+*
+*/
+void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes){
+    int MAXCHAR = 128;
+    int count = 0;
+
+    char row[MAXCHAR];
+    //int memory_partition_sizes[NUM_MEMORY_PARTITIONS];
+
+    FILE* f = fopen(input_file, "r");
+    if(f == NULL){
+        // file not opened, fail gracefully
+        printf("NULL FILE\n\n\n\n");
+        //  assert(false);
+    }
+    // Get the first row, which has the header values
+
+    fgets(row, MAXCHAR, f);
+    // Read the remainder of the rows until you get to the end of the file
+    while(fgets(row, MAXCHAR, f)){
+        // atoi turns a string into an integer
+        // strtok(row,";") tokenizes the row around the ';' charaters
+        // strtok(NULL, ";") gets the next token in the row
+        // We are assuming that the file is setup as a CSV in the correct format
+        memory_partition_sizes[count] = atoi(strtok(row, ","));
+        count++;
+    }
+}
+
+/* FUNCTION DESCRIPTION: construct_main_memory
+* This function is a constructor for main memory
+* The parameters are:
+*   - mem: Main memory
+*   - memory_partition_sizes: Array to store memory partition sizes
+* There is no return value.
+*/
+
+void construct_main_memory(struct main_memory mem, int* memory_partition_sizes) {
+    int i;
+
+    for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
+        mem.partitions[i].size = *memory_partition_sizes[i];
+        mem.partitions[i].is_available = true;
+    }
+}
+
 /* FUNCTION DESCRIPTION: get_time_to_next_event
 * This function returns the amount of simulation time until the next event occurs
-* The parameters are: 
+* The parameters are:
 *    - cpu_clock: Time since the start of the simulation
 *    - running: The node containing the currently running process
 *    - new queue: The list of precess that have yet to arrive in the cpu
@@ -260,13 +315,13 @@ int get_time_to_next_event(int cpu_clock, node_t running, node_t new_list, node_
         next_block = running->p->io_time_remaining;
     }
 
-    // Search the new queue for the time until its next event 
+    // Search the new queue for the time until its next event
     temp = new_list;
     while(temp != NULL){
         next_arrival = min(temp->p->arrival_time - cpu_clock, next_arrival);
         temp = temp->next;
     }
-    
+
     // Search the waiting queue for the time until its next event
     temp = waiting_list;
     while(temp != NULL){
@@ -280,7 +335,7 @@ int get_time_to_next_event(int cpu_clock, node_t running, node_t new_list, node_
 
 /* FUNCTION DESCRIPTION: clean_up
 * This function frees all the dynamically allocated heap memory
-* The parameters are: 
+* The parameters are:
 *    - list: the list of nodes to free
 */
 void clean_up(node_t list){
@@ -293,14 +348,24 @@ void clean_up(node_t list){
     }
 }
 
+// Receives the head node of the ready list and returns the node with the highest priority (nodes with same priority are treated as equals and do not get swapped for each other)
+node_t pick_highest_priority_process(node_t *head) {
+    node_t temp = *head;
+    node_t highest_priority_node = NULL;
+    int highest_priority = -1; // Assuming priority values are positive. Adjust if they can be negative.
 
-void scheduluer(int schedule){
-    //This is where we will recieve the input from the user as which schedule we are using
-    //ex: 0 for FCFS, 1 for Priorities, 2 for RR with 100ms timeout
+    while(temp != NULL) {
+        if(temp->p->priority > highest_priority) {
+            highest_priority = temp->p->priority;
+            highest_priority_node = temp;
+        }
+        temp = temp->next;
+    }
 
-
-
+    return highest_priority_node;
 }
+
+
 
 
 int main( int argc, char *argv[]) {
@@ -308,26 +373,57 @@ int main( int argc, char *argv[]) {
     bool simulation_completed = false;
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
-    char *input_file;
-    int verbose;
 
-    if(argc == 2){
+    struct main_memory mem;
+
+    char *input_file;
+    char *memory_schema_file;
+
+    int verbose;
+    int scheduler_type;
+    int memory_partitions[NUM_MEMORY_PARTITIONS];
+
+    if(argc == 4) {
+        input_file = argv[1];
+        scheduler_type = atoi(argv[2]);
+        memory_schema_file = argv[3];
+        verbose = 0;
+    } else if(argc == 3){
         input_file = argv[1];
         verbose = 0;
-    } else if( argc == 3 ) {
+    } else if( argc == 2 ) {
         input_file = argv[1];
         verbose = atoi(argv[2]);
     } else {
-        printf("Two or three args expected.\n");
+        printf("Two or three args expected. First int arg is Scheduler type argument (0 for FCFS, 1 for Priority, 2 for RR), add 1 after if verbose is desired \n");
         return -1;
     }
 
-    // Process meta data should be read from a text file
+    // Read memory schema from file and build main memory
+    if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
+    int i = 0;
+    read_memory_schema_from_file(memory_schema_file,memory_partitions);
+    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, memory_partitions[i]);}
+
+    //construct_main_memory(mem,memory_partitions);
+
+    for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
+
+        //printf("%d this is the mem size",mem.partitions[i].size);
+
+    }
+    if(verbose) printf("-------------------------------------------------------------------------------------\n");
+
+    // Process metadata should be read from a text file
     if(verbose) printf("------------------------------- Loading all processes -------------------------------\n");
     new_list = read_proc_from_file(input_file);
     if(verbose) print_nodes(new_list);
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
     if(verbose) printf("Starting simulation...\n");
+
+    int time_quantum = 1;
+    int current_quantum = 0;
+
 
     // print the headers
     printf("Time of transition,PID,Old State,New State\n");
@@ -371,48 +467,56 @@ int main( int argc, char *argv[]) {
                 remove_node(&new_list, node);
                 ready_list = push_node(ready_list, node);
                 printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
-                
+
                 node = temp;
             } else {
                 node = node->next;
             }
-        } 
+        }
+
+
+
         // Make sure the CPU is running a process
         if(running == NULL){
             // If it isn't, check if there is one ready
             if(ready_list!=NULL){
-                running = ready_list;
+                if(scheduler_type == 0) { // FCFS
+                    running = ready_list;
+                } else if(scheduler_type == 1) { // External Priorities (No Preemption)
+                    running = pick_highest_priority_process(&ready_list);
+                } else if(scheduler_type == 2) { // Round Robin
+                    running = ready_list; // Since it's just like FCFS but with a time slice.
+                }
                 running->p->s = STATE_RUNNING;
-                //This is where we call the scheduler and return a value which will be the one to enter the running state or will tell us how to proceed.
-                //EX if scheduler returns the FCFS maybe we do nothing, or if we give the scheduler the FCFS input it can return the next process to enter the running state
                 remove_node(&ready_list, running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
+                current_quantum = 0;
             } else{
-                running = NULL; 
+                running = NULL;
                 if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-            } 
+            }
         } else {
             // if it is then remove the time step from remaining time until process completetion and next io event
             running->p->cpu_time_remaining -= next_step;
             running->p->io_time_remaining -= next_step;
             // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
-            
+
             if(running->p->cpu_time_remaining <= 0){
                 // The process is finished running, terminate it
                 running->p->s = STATE_TERMINATED;
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
-                
+
                 if(ready_list!=NULL){
                     running = ready_list;
                     running->p->s = STATE_RUNNING;
                     remove_node(&ready_list, running);
                     printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-                          
+
                 } else{
-                    running = NULL; 
+                    running = NULL;
                     if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                } 
+                }
 
             } else if(running->p->io_time_remaining <= 0){
                 // The process is blocked by io, update the timer and set state to waiting
@@ -426,17 +530,33 @@ int main( int argc, char *argv[]) {
                     running->p->s = STATE_RUNNING;
                     remove_node(&ready_list, running);
                     printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-                      
+
                 } else {
-                    running = NULL; 
+                    running = NULL;
                     if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                } 
-            }            
+                }
+            } else if(scheduler_type == 2 && current_quantum >= time_quantum) { // Handle Round Robin Logic
+                // Round Robin time quantum exhaustion logic
+                ready_list = push_node(ready_list, running);
+                running->p->s = STATE_READY;
+                if(ready_list != NULL) {
+                    running = ready_list;
+                    running->p->s = STATE_RUNNING;
+                    remove_node(&ready_list, running);
+                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
+                    current_quantum = 0;
+                } else {
+                    running = NULL;
+                    if(verbose) printf("%d, CPU is idle\n", cpu_clock);
+                }
+            } else {
+                current_quantum += next_step;
+            }
         }
 
         // Set the simulation time advance
         next_step = get_time_to_next_event(cpu_clock, running, new_list, waiting_list);
-        
+
         if(verbose){
             printf("-------------------------------------------------------------------------------------\n");
             printf("At CPU time %dms...\n", cpu_clock);
