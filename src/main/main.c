@@ -22,6 +22,7 @@
 // Macro to return the min of a and b
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define NUM_MEMORY_PARTITIONS 4
+#define NOT_USING_MEMORY_SCHEMA true
 
 // An enumerator (enum for short) to represent the state
 enum STATE {
@@ -44,6 +45,8 @@ struct process {
     int io_frequency;
     int io_duration;
     int priority;
+    int process_size;
+    int index_of_memory_partition;
     int io_time_remaining;
     enum STATE s;
 };
@@ -82,7 +85,7 @@ typedef struct node *node_t;
 *    -io_duration
 * The return value is a pointer to new process structure
 */
-proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequency, int io_duration, int priority){
+proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequency, int io_duration, int priority, int process_size){
     // Initialize memory
     proc_t temp;
     temp = (proc_t) malloc(sizeof(struct process));
@@ -97,7 +100,9 @@ proc_t create_proc(int pid, int arrival_time, int total_cpu_time, int io_frequen
     temp->io_frequency = io_frequency;
     temp->io_duration = io_duration;
     temp->priority = priority;
+    temp->process_size = process_size;
     temp->io_time_remaining = io_frequency;
+    temp->index_of_memory_partition = 0;
     temp->s = STATE_NEW;
     return temp;
 }
@@ -220,7 +225,7 @@ node_t read_proc_from_file(char *input_file){
     char row[MAXCHAR];
     node_t new_list=NULL, node;
     proc_t proc;
-    int pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority;
+    int pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority, process_size;
 
     FILE* f = fopen(input_file, "r");
     if(f == NULL){
@@ -247,9 +252,10 @@ node_t read_proc_from_file(char *input_file){
         io_frequency = atoi(strtok(NULL, ","));
         io_duration = atoi(strtok(NULL, ","));
         priority = atoi(strtok(NULL, ","));
+        process_size = atoi(strtok(NULL,","));
 
         // We create a process struct and pass it too create node, then add this node to the new_list
-        proc = create_proc(pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority);
+        proc = create_proc(pid, arrival_time, total_cpu_time, io_frequency, io_duration, priority, process_size);
         node = create_node(proc);
         new_list = push_node(new_list, node);
 
@@ -309,6 +315,35 @@ void construct_main_memory(struct main_memory *mem, int* memory_partition_sizes)
     }
 }
 
+/* FUNCTION DESCRIPTION: allocate memory partition
+* This function allocates a memory partition for a given process
+* The parameters are:
+*   - mem: Main memory
+*   - head: A pointer to the head of the new_state linked list
+* There is no return value.
+*/
+bool allocate_memory_partition(node_t *head,struct main_memory *mem){
+    node_t temp = *head;
+    node_t node_to_be_allocated = NULL;
+    int i =0;
+
+    printf("Inside Allocate Memory Function\n");
+
+    if(temp != NULL) {
+        for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
+            if(mem->partitions[i].is_available){
+                if(mem->partitions[i].size == temp->p->process_size){
+                    mem->partitions[i].is_available = false;
+                    temp->p->index_of_memory_partition = i;
+                    return true;
+                }
+            }
+        }
+
+    }
+
+    return false;
+}
 
 
 
@@ -398,22 +433,28 @@ int main( int argc, char *argv[]) {
     int verbose;
     int scheduler_type;
     int memory_partitions[NUM_MEMORY_PARTITIONS];
+    int using_memory_schema = 0;
 
-    if(argc == 4) {
+    if(argc == 5) {
         input_file = argv[1];
         scheduler_type = atoi(argv[2]);
         memory_schema_file = argv[3];
+        using_memory_schema = atoi(argv[4]);
         verbose = 0;
-    } else if(argc == 3){
+    } else if(argc == 4){
         input_file = argv[1];
+        scheduler_type = atoi(argv[2]);
+        memory_schema_file = argv[3];
+        using_memory_schema = atoi(argv[4]);
         verbose = 0;
-    } else if( argc == 2 ) {
+    } else if( argc == 3 ) {
         input_file = argv[1];
         verbose = atoi(argv[2]);
     } else {
         printf("Two or three args expected. First int arg is Scheduler type argument (0 for FCFS, 1 for Priority, 2 for RR), add 1 after if verbose is desired \n");
         return -1;
     }
+
 
     // Read memory schema from file and build main memory
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
@@ -464,23 +505,30 @@ int main( int argc, char *argv[]) {
             }
         }
 
+
         // Check if any of the items in new queue should be moved to the ready queue
         node = new_list;
-        while(node!= NULL) {
+        while (node != NULL) {
             // If the program has arrived change its state and add it to ready queue
-            if(node->p->arrival_time == cpu_clock){
-                node->p->s = STATE_READY;
-
-                temp = node->next;
-                remove_node(&new_list, node);
-                ready_list = push_node(ready_list, node);
-                printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
-
-                node = temp;
+            if (node->p->arrival_time <= cpu_clock) {
+                bool memory_allocated = true;
+                if (using_memory_schema) {
+                    // check if memory is available
+                    memory_allocated = allocate_memory_partition(&node,&mem);
+                }
+                if(memory_allocated) {
+                    node->p->s = STATE_READY;
+                    temp = node->next;
+                    remove_node(&new_list, node);
+                    ready_list = push_node(ready_list, node);
+                    printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
+                    node = temp;
+                }
             } else {
                 node = node->next;
             }
         }
+
 
 
 
@@ -511,6 +559,8 @@ int main( int argc, char *argv[]) {
 
             if(running->p->cpu_time_remaining <= 0){
                 // The process is finished running, terminate it
+                // Free up memory for another process in the right partition
+                //mem.partitions[running->p->index_of_memory_partition].is_available = true;
                 running->p->s = STATE_TERMINATED;
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
