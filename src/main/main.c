@@ -385,7 +385,7 @@ node_t pick_highest_priority_process(node_t *head) {
 
 
 int main( int argc, char *argv[]) {
-    int next_step = 0, cpu_clock = 0;
+    int next_step = 0, cpu_clock = 0, i = 0;
     bool simulation_completed = false;
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
@@ -417,7 +417,6 @@ int main( int argc, char *argv[]) {
 
     // Read memory schema from file and build main memory
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
-    int i = 0;
     read_memory_schema_from_file(memory_schema_file,memory_partitions);
     construct_main_memory(&mem,memory_partitions);
     if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, mem.partitions[i].size);}
