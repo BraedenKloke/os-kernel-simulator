@@ -299,16 +299,19 @@ void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes)
 *   - memory_partition_sizes: Array to store memory partition sizes
 * There is no return value.
 */
-/*
-void construct_main_memory(struct main_memory mem, int* memory_partition_sizes) {
+
+void construct_main_memory(struct main_memory *mem, int* memory_partition_sizes) {
     int i;
 
-    for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
-        mem.partitions[i].size = *memory_partition_sizes[i];
-        mem.partitions[i].is_available = true;
+    for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
+        mem->partitions[i].size = memory_partition_sizes[i];
+        mem->partitions[i].is_available = true;
     }
 }
- */
+
+
+
+
 
 /* FUNCTION DESCRIPTION: get_time_to_next_event
 * This function returns the amount of simulation time until the next event occurs
@@ -416,15 +419,8 @@ int main( int argc, char *argv[]) {
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
     int i = 0;
     read_memory_schema_from_file(memory_schema_file,memory_partitions);
-    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, memory_partitions[i]);}
-
-    //construct_main_memory(mem,memory_partitions);
-
-    for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
-
-        //printf("%d this is the mem size",mem.partitions[i].size);
-
-    }
+    construct_main_memory(&mem,memory_partitions);
+    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, mem.partitions[i].size);}
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
 
     // Process metadata should be read from a text file
