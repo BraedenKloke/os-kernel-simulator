@@ -435,7 +435,13 @@ int main( int argc, char *argv[]) {
     int memory_partitions[NUM_MEMORY_PARTITIONS];
     int using_memory_schema = 0;
 
-    if(argc == 5) {
+	if (argc == 6) {
+        input_file = argv[1];
+        scheduler_type = atoi(argv[2]);
+        memory_schema_file = argv[3];
+        using_memory_schema = atoi(argv[4]);
+        verbose = atoi(argv[5]);
+	} else if(argc == 5) {
         input_file = argv[1];
         scheduler_type = atoi(argv[2]);
         memory_schema_file = argv[3];
@@ -451,7 +457,7 @@ int main( int argc, char *argv[]) {
         input_file = argv[1];
         verbose = atoi(argv[2]);
     } else {
-        printf("Two or three args expected. First int arg is Scheduler type argument (0 for FCFS, 1 for Priority, 2 for RR), add 1 after if verbose is desired \n");
+        printf("Three to six args expected. First int arg is Scheduler type argument (0 for FCFS, 1 for Priority, 2 for RR), add 1 after if verbose is desired \n");
         return -1;
     }
 
@@ -514,7 +520,7 @@ int main( int argc, char *argv[]) {
                 bool memory_allocated = true;
                 if (using_memory_schema) {
                     // check if memory is available
-                    memory_allocated = allocate_memory_partition(&node,&mem);
+                    // memory_allocated = allocate_memory_partition(&node,&mem);
                 }
                 if(memory_allocated) {
                     node->p->s = STATE_READY;
