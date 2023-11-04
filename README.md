@@ -30,9 +30,9 @@ which Professor Wainer distributed and confirmed we could use as a starting poin
 
 Run the following command to build the project:
 
-'''
+```
 ./scripts/sh/build.sh
-'''
+```
 
 Confirm the following binary object is built:
 
@@ -74,38 +74,38 @@ Run the following commands to run the various tests:
 
 ### Test FCFS
 
-'''
+```
 ./scripts/sh/test1_fcfs_non-verbose.sh
 ./scripts/sh/test2_fcfs_non-verbose.sh
-'''
+```
 
 ### Test External Priorities
 
-'''
+```
 ./scripts/sh/test1_external-priorities_non-verbose.sh
 ./scripts/sh/test2_external-priorities_non-verbose.sh
-'''
+```
 
 ### Test Round Robin
 
-'''
+```
 ./scripts/sh/test1_rr_non-verbose.sh
 ./scripts/sh/test2_rr_non-verbose.sh
-'''
+```
 
 ### Test Memory Schema 1
 
-'''
+```
 ./scripts/sh/test1_memory1_non-verbose.sh
 ./scripts/sh/test2_memory1_non-verbose.sh
-'''
+```
 
 ### Test Memory Schema 2
 
-'''
+```
 ./scripts/sh/test1_memory2_non-verbose.sh
 ./scripts/sh/test2_memory2_non-verbose.sh
-'''
+```
 
 ## Windows
 
