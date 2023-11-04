@@ -1,26 +1,18 @@
 # TODO
 
-## Timeline
-- Finish scheduler section by EOW Nov 3
-- Finish memory management by EOW Nov 10
-
 # Completed
 - [X] (@braeden) docs(assignment questions): write-up completed questions and gantt charts
 - [X] (@braeden) test: run profs code with sh scripts
-- [X] (@braeden) refactor: merge new code base into main
-- [X] (@braeden) chore: download sealion, use cmail
-- [X] (@grant) test: create bat scripts
-- [X] (@grant) test: run profs code with bat scripts
 
-# Waiting to Hear Back
+# Work in Progress (MAX_WIP=1)
+- [ ] (@braeden) refactor: merge new code base into main
 - [ ] (@braeden) chore(email prof): re: question d of assignment, clarification
 	- scheduler to implement: 1. re: case presented in Part I. c.)
 	- assumption: external priorities: add a priority field
-
-# Work in Progress (MAX_WIP=1)
+- [ ] (@grant) test: run profs code with bat scripts
+- [ ] (@braeden) chore: download sealion, use cmail
 
 # Backlog
-- [ ] (@braeden) docs(report): add Part D gantt chart to report
 - [ ] (@grant) docs(readme): add build instructions for Windows
 - [ ] (@braeden) docs(readme): add build instructions for Linux
 - [ ] (@grant) docs(readme): add test instructions for Windows
