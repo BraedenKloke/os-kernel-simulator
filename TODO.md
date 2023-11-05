@@ -3,6 +3,7 @@
 # Completed
 - [X] (@braeden) docs(readme): add test instructions for Linux
 - [X] feat(pcb): add info about (1) memory positions and (2) amount of memory needed
+- [X] (@braeden) feat(memory): implement memory management
 
 # Work in Progress (MAX_WIP=1)
 

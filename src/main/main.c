@@ -57,11 +57,6 @@ struct memory_partition {
     bool is_available;
 };
 
-// This structure represents a main memory divided into fixed partitions.
-struct main_memory {
-    struct memory_partition partitions[NUM_MEMORY_PARTITIONS];
-};
-
 // This structure is a linked list of processes
 // This linked list was adapted from the code presented in the following tutorial:
 // https://www.hackerearth.com/practice/data-structures/linked-list/singly-linked-list/tutorial/#:~:text=In%20C%20language%2C%20a%20linked,address%20of%20the%20next%20node.
@@ -265,18 +260,18 @@ node_t read_proc_from_file(char *input_file){
 }
 
 /* FUNCTION DESCRIPTION: read_memory_schema_from_file
-* This function adds the memory partition to an array
+* This function reads an input memory schema file and adds the partition sizes 
+* of the schema to an array representing main memory
 * The parameters are:
-*    - input_file: File name within project directory
-*   - memory_partition_sizes: Array to store memory partition sizes
-*
+*   - input_file: Memory schema file
+*   - mm: Array representing main memory
+* There is no return value.
 */
-void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes){
+void read_memory_schema_from_file(char *input_file, struct memory_partition *mm){
     int MAXCHAR = 128;
     int count = 0;
 
     char row[MAXCHAR];
-    //int memory_partition_sizes[NUM_MEMORY_PARTITIONS];
 
     FILE* f = fopen(input_file, "r");
     if(f == NULL){
@@ -285,55 +280,43 @@ void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes)
         //  assert(false);
     }
     // Get the first row, which has the header values
-
     fgets(row, MAXCHAR, f);
+
     // Read the remainder of the rows until you get to the end of the file
     while(fgets(row, MAXCHAR, f)){
         // atoi turns a string into an integer
         // strtok(row,";") tokenizes the row around the ';' charaters
         // strtok(NULL, ";") gets the next token in the row
         // We are assuming that the file is setup as a CSV in the correct format
-        memory_partition_sizes[count] = atoi(strtok(row, ","));
+        mm[count].size = atoi(strtok(row, ","));
+		mm[count].is_available = true;
         count++;
     }
 }
 
-/* FUNCTION DESCRIPTION: construct_main_memory
-* This function is a constructor for main memory
+/* FUNCTION DESCRIPTION: allocate_memory_partition
+* This function allocates a memory partition to a given process.
 * The parameters are:
-*   - mem: Main memory
-*   - memory_partition_sizes: Array to store memory partition sizes
-* There is no return value.
-*/
-
-void construct_main_memory(struct main_memory *mem, int* memory_partition_sizes) {
-    int i;
-
-    for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
-        mem->partitions[i].size = memory_partition_sizes[i];
-        mem->partitions[i].is_available = true;
-    }
-}
-
-/* FUNCTION DESCRIPTION: allocate memory partition
-* This function allocates a memory partition for a given process
-* The parameters are:
-*   - mem: Main memory
+*   - mm: An array representing main memory
 *   - head: A pointer to the head of the new_state linked list
 * There is no return value.
 */
-bool allocate_memory_partition(node_t *head,struct main_memory *mem){
+bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int verbose){
     node_t temp = *head;
     node_t node_to_be_allocated = NULL;
     int i =0;
 
-    printf("Inside Allocate Memory Function\n");
-
     if(temp != NULL) {
+		if(verbose) {printf("--------------------------------------------\n");}
+		if(verbose) {printf("Attempting to allocate memory to process: %d\n", temp->p->pid);}
+		if(verbose) {printf("Process to allocate memory to has a size of: %d Mb\n", temp->p->process_size);}
         for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
-            if(mem->partitions[i].is_available){
-                if(mem->partitions[i].size == temp->p->process_size){
-                    mem->partitions[i].is_available = false;
+            if(mm[i].is_available){
+			if(verbose) {printf("Main memory partition %d is available with a size of: %d Mb\n", i, mm[i].size);}
+                if(mm[i].size >= temp->p->process_size){
+					if(verbose) {printf("Allocating memory partition %d to process: %d\n", i, temp->p->pid);}
+					if(verbose) {printf("-----------------------------------------\n");}
+                    mm[i].is_available = false;
                     temp->p->index_of_memory_partition = i;
                     return true;
                 }
@@ -425,15 +408,17 @@ int main( int argc, char *argv[]) {
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
 
-    struct main_memory mem;
-
+	// Initialize variables for input files
     char *input_file;
     char *memory_schema_file;
 
+	// Initialize flags
     int verbose;
     int scheduler_type;
-    int memory_partitions[NUM_MEMORY_PARTITIONS];
     int using_memory_schema = 0;
+
+	// Initialize main memory representation
+	struct memory_partition main_memory[NUM_MEMORY_PARTITIONS]; 
 
 	if (argc == 6) {
         input_file = argv[1];
@@ -464,9 +449,10 @@ int main( int argc, char *argv[]) {
 
     // Read memory schema from file and build main memory
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
-    read_memory_schema_from_file(memory_schema_file,memory_partitions);
-    construct_main_memory(&mem,memory_partitions);
-    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, mem.partitions[i].size);}
+    read_memory_schema_from_file(memory_schema_file, main_memory);
+    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
+		printf("Partition %d size and is available (1 if true): %d Mb, %d\n", i, main_memory[i].size, main_memory[i].is_available);
+	}
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
 
     // Process metadata should be read from a text file
@@ -515,14 +501,15 @@ int main( int argc, char *argv[]) {
         // Check if any of the items in new queue should be moved to the ready queue
         node = new_list;
         while (node != NULL) {
-            // If the program has arrived change its state and add it to ready queue
+            // Check if process has arrived
             if (node->p->arrival_time <= cpu_clock) {
                 bool memory_allocated = true;
                 if (using_memory_schema) {
-                    // check if memory is available
-                    // memory_allocated = allocate_memory_partition(&node,&mem);
+                    // Attempt to allocate memory to process
+                    memory_allocated = allocate_memory_partition(&node, main_memory, verbose);
                 }
                 if(memory_allocated) {
+					// Move process from NEW to READY
                     node->p->s = STATE_READY;
                     temp = node->next;
                     remove_node(&new_list, node);
@@ -565,8 +552,13 @@ int main( int argc, char *argv[]) {
 
             if(running->p->cpu_time_remaining <= 0){
                 // The process is finished running, terminate it
-                // Free up memory for another process in the right partition
-                //mem.partitions[running->p->index_of_memory_partition].is_available = true;
+
+                // Free up memory for another process 
+				if(verbose) {printf("-------------------------------------------\n");}
+				if(verbose) {printf("Freeing memory partition %d from process %d\n", running->p->index_of_memory_partition, running->p->pid);}
+				if(verbose) {printf("-------------------------------------------\n");}
+				main_memory[running->p->index_of_memory_partition].is_available = true;
+
                 running->p->s = STATE_TERMINATED;
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
