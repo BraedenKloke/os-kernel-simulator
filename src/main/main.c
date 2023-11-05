@@ -57,11 +57,6 @@ struct memory_partition {
     bool is_available;
 };
 
-// This structure represents a main memory divided into fixed partitions.
-struct main_memory {
-    struct memory_partition partitions[NUM_MEMORY_PARTITIONS];
-};
-
 // This structure is a linked list of processes
 // This linked list was adapted from the code presented in the following tutorial:
 // https://www.hackerearth.com/practice/data-structures/linked-list/singly-linked-list/tutorial/#:~:text=In%20C%20language%2C%20a%20linked,address%20of%20the%20next%20node.
@@ -269,10 +264,10 @@ node_t read_proc_from_file(char *input_file){
 * of the schema to an array representing main memory
 * The parameters are:
 *   - input_file: Memory schema file
-*   - main_memory: Array representing main memory
+*   - mm: Array representing main memory
 * There is no return value.
 */
-void read_memory_schema_from_file(char *input_file, struct memory_partition *main_memory){
+void read_memory_schema_from_file(char *input_file, struct memory_partition *mm){
     int MAXCHAR = 128;
     int count = 0;
 
@@ -293,8 +288,8 @@ void read_memory_schema_from_file(char *input_file, struct memory_partition *mai
         // strtok(row,";") tokenizes the row around the ';' charaters
         // strtok(NULL, ";") gets the next token in the row
         // We are assuming that the file is setup as a CSV in the correct format
-        main_memory[count].size = atoi(strtok(row, ","));
-		main_memory[count].is_available = true;
+        mm[count].size = atoi(strtok(row, ","));
+		mm[count].is_available = true;
         count++;
     }
 }
@@ -306,7 +301,7 @@ void read_memory_schema_from_file(char *input_file, struct memory_partition *mai
 *   - head: A pointer to the head of the new_state linked list
 * There is no return value.
 */
-bool allocate_memory_partition(node_t *head,struct main_memory *mem){
+bool allocate_memory_partition(node_t *head,struct memory_partition *mm){
     node_t temp = *head;
     node_t node_to_be_allocated = NULL;
     int i =0;
@@ -315,9 +310,9 @@ bool allocate_memory_partition(node_t *head,struct main_memory *mem){
 
     if(temp != NULL) {
         for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
-            if(mem->partitions[i].is_available){
-                if(mem->partitions[i].size == temp->p->process_size){
-                    mem->partitions[i].is_available = false;
+            if(mm[i].is_available){
+                if(mm[i].size == temp->p->process_size){
+                    mm[i].is_available = false;
                     temp->p->index_of_memory_partition = i;
                     return true;
                 }
@@ -409,16 +404,17 @@ int main( int argc, char *argv[]) {
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
 
-    struct main_memory mem;
-
+	// Initialize variables for input files
     char *input_file;
     char *memory_schema_file;
 
+	// Initialize flags
     int verbose;
     int scheduler_type;
-    int memory_partitions[NUM_MEMORY_PARTITIONS];
-	struct memory_partition main_memory[NUM_MEMORY_PARTITIONS]; 
     int using_memory_schema = 0;
+
+	// Initialize main memory representation
+	struct memory_partition main_memory[NUM_MEMORY_PARTITIONS]; 
 
 	if (argc == 6) {
         input_file = argv[1];
