@@ -547,8 +547,13 @@ int main( int argc, char *argv[]) {
 
             if(running->p->cpu_time_remaining <= 0){
                 // The process is finished running, terminate it
-                // Free up memory for another process in the right partition
-                //mem.partitions[running->p->index_of_memory_partition].is_available = true;
+
+                // Free up memory for another process 
+				if(verbose) {printf("-------------------------------------------\n");}
+				if(verbose) {printf("Freeing memory partition %d from process %d\n", running->p->index_of_memory_partition, running->p->pid);}
+				if(verbose) {printf("-------------------------------------------\n");}
+				main_memory[running->p->index_of_memory_partition].is_available = true;
+
                 running->p->s = STATE_TERMINATED;
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
