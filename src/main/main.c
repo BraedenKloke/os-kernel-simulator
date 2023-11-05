@@ -294,24 +294,24 @@ void read_memory_schema_from_file(char *input_file, struct memory_partition *mm)
     }
 }
 
-/* FUNCTION DESCRIPTION: allocate memory partition
-* This function allocates a memory partition for a given process
+/* FUNCTION DESCRIPTION: allocate_memory_partition
+* This function allocates a memory partition to a given process.
 * The parameters are:
-*   - mem: Main memory
+*   - mm: An array representing main memory
 *   - head: A pointer to the head of the new_state linked list
 * There is no return value.
 */
-bool allocate_memory_partition(node_t *head,struct memory_partition *mm){
+bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int verbose){
     node_t temp = *head;
     node_t node_to_be_allocated = NULL;
     int i =0;
-
-    printf("Inside Allocate Memory Function\n");
 
     if(temp != NULL) {
         for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
             if(mm[i].is_available){
                 if(mm[i].size == temp->p->process_size){
+					if(verbose) {printf("Allocating memory partition %d to PID: %d\n", i, temp->p->pid);}
+					if(verbose) {printf("-----------------------------------------\n");}
                     mm[i].is_available = false;
                     temp->p->index_of_memory_partition = i;
                     return true;
@@ -321,7 +321,7 @@ bool allocate_memory_partition(node_t *head,struct memory_partition *mm){
 
     }
 
-    return false;
+    return true;
 }
 
 
@@ -501,8 +501,8 @@ int main( int argc, char *argv[]) {
             if (node->p->arrival_time <= cpu_clock) {
                 bool memory_allocated = true;
                 if (using_memory_schema) {
-                    // check if memory is available
-                    // memory_allocated = allocate_memory_partition(&node,&mem);
+                    // Attempt to allocate memory to process
+                    memory_allocated = allocate_memory_partition(&node, main_memory, verbose);
                 }
                 if(memory_allocated) {
                     node->p->s = STATE_READY;
