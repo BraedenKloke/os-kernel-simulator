@@ -516,7 +516,9 @@ int main( int argc, char *argv[]) {
                     ready_list = push_node(ready_list, node);
                     printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
                     node = temp;
-                }
+                } else {
+					node = node->next; // (@braeden): This prevents an infinite loop when arrival_time <= clock && memory not allocated
+				}
             } else {
                 node = node->next;
             }
@@ -611,7 +613,8 @@ int main( int argc, char *argv[]) {
         }
 
         // Set the simulation time advance
-        next_step = get_time_to_next_event(cpu_clock, running, new_list, waiting_list);
+        //next_step = get_time_to_next_event(cpu_clock, running, new_list, waiting_list); // (@braeden): this is breaking code.
+		next_step += 1;
 
         if(verbose){
             printf("-------------------------------------------------------------------------------------\n");
