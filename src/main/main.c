@@ -298,23 +298,6 @@ void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes)
     }
 }
 
-/* FUNCTION DESCRIPTION: construct_main_memory
-* This function is a constructor for main memory
-* The parameters are:
-*   - mem: Main memory
-*   - memory_partition_sizes: Array to store memory partition sizes
-* There is no return value.
-*/
-
-void construct_main_memory(struct main_memory *mem, int* memory_partition_sizes) {
-    int i;
-
-    for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
-        mem->partitions[i].size = memory_partition_sizes[i];
-        mem->partitions[i].is_available = true;
-    }
-}
-
 /* FUNCTION DESCRIPTION: allocate memory partition
 * This function allocates a memory partition for a given process
 * The parameters are:
@@ -465,7 +448,6 @@ int main( int argc, char *argv[]) {
     // Read memory schema from file and build main memory
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
     read_memory_schema_from_file(memory_schema_file,memory_partitions);
-    construct_main_memory(&mem,memory_partitions);
     if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, mem.partitions[i].size);}
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
 

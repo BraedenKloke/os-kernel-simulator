@@ -5,6 +5,7 @@
 - [X] feat(pcb): add info about (1) memory positions and (2) amount of memory needed
 
 # Work in Progress (MAX_WIP=1)
+- [ ] (@braeden) feat(memory): implement memory management
 
 # Backlog
 - [ ] (@grant) docs(readme): add build instructions for Windows
