@@ -307,10 +307,14 @@ bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int ver
     int i =0;
 
     if(temp != NULL) {
+		if(verbose) {printf("--------------------------------------------\n");}
+		if(verbose) {printf("Attempting to allocate memory to process: %d\n", temp->p->pid);}
+		if(verbose) {printf("Process to allocate memory to has a size of: %d Mb\n", temp->p->process_size);}
         for (i = 0; i < NUM_MEMORY_PARTITIONS; i++) {
             if(mm[i].is_available){
-                if(mm[i].size == temp->p->process_size){
-					if(verbose) {printf("Allocating memory partition %d to PID: %d\n", i, temp->p->pid);}
+			if(verbose) {printf("Main memory partition %d is available with a size of: %d Mb\n", i, mm[i].size);}
+                if(mm[i].size >= temp->p->process_size){
+					if(verbose) {printf("Allocating memory partition %d to process: %d\n", i, temp->p->pid);}
 					if(verbose) {printf("-----------------------------------------\n");}
                     mm[i].is_available = false;
                     temp->p->index_of_memory_partition = i;
@@ -321,7 +325,7 @@ bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int ver
 
     }
 
-    return true;
+    return false;
 }
 
 
@@ -497,7 +501,7 @@ int main( int argc, char *argv[]) {
         // Check if any of the items in new queue should be moved to the ready queue
         node = new_list;
         while (node != NULL) {
-            // If the program has arrived change its state and add it to ready queue
+            // Check if process has arrived
             if (node->p->arrival_time <= cpu_clock) {
                 bool memory_allocated = true;
                 if (using_memory_schema) {
@@ -505,6 +509,7 @@ int main( int argc, char *argv[]) {
                     memory_allocated = allocate_memory_partition(&node, main_memory, verbose);
                 }
                 if(memory_allocated) {
+					// Move process from NEW to READY
                     node->p->s = STATE_READY;
                     temp = node->next;
                     remove_node(&new_list, node);
