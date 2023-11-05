@@ -265,18 +265,18 @@ node_t read_proc_from_file(char *input_file){
 }
 
 /* FUNCTION DESCRIPTION: read_memory_schema_from_file
-* This function adds the memory partition to an array
+* This function reads an input memory schema file and adds the partition sizes 
+* of the schema to an array representing main memory
 * The parameters are:
-*    - input_file: File name within project directory
-*   - memory_partition_sizes: Array to store memory partition sizes
-*
+*   - input_file: Memory schema file
+*   - main_memory: Array representing main memory
+* There is no return value.
 */
-void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes){
+void read_memory_schema_from_file(char *input_file, struct memory_partition *main_memory){
     int MAXCHAR = 128;
     int count = 0;
 
     char row[MAXCHAR];
-    //int memory_partition_sizes[NUM_MEMORY_PARTITIONS];
 
     FILE* f = fopen(input_file, "r");
     if(f == NULL){
@@ -285,15 +285,16 @@ void read_memory_schema_from_file(char *input_file, int *memory_partition_sizes)
         //  assert(false);
     }
     // Get the first row, which has the header values
-
     fgets(row, MAXCHAR, f);
+
     // Read the remainder of the rows until you get to the end of the file
     while(fgets(row, MAXCHAR, f)){
         // atoi turns a string into an integer
         // strtok(row,";") tokenizes the row around the ';' charaters
         // strtok(NULL, ";") gets the next token in the row
         // We are assuming that the file is setup as a CSV in the correct format
-        memory_partition_sizes[count] = atoi(strtok(row, ","));
+        main_memory[count].size = atoi(strtok(row, ","));
+		main_memory[count].is_available = true;
         count++;
     }
 }
@@ -416,6 +417,7 @@ int main( int argc, char *argv[]) {
     int verbose;
     int scheduler_type;
     int memory_partitions[NUM_MEMORY_PARTITIONS];
+	struct memory_partition main_memory[NUM_MEMORY_PARTITIONS]; 
     int using_memory_schema = 0;
 
 	if (argc == 6) {
@@ -447,8 +449,10 @@ int main( int argc, char *argv[]) {
 
     // Read memory schema from file and build main memory
     if(verbose) printf("------------------------------- Building main memory------------------------------- \n");
-    read_memory_schema_from_file(memory_schema_file,memory_partitions);
-    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {printf("Partition %d: %d Mb\n", i, mem.partitions[i].size);}
+    read_memory_schema_from_file(memory_schema_file, main_memory);
+    if(verbose) for (i=0; i < NUM_MEMORY_PARTITIONS; i++) {
+		printf("Partition %d size and is available (1 if true): %d Mb, %d\n", i, main_memory[i].size, main_memory[i].is_available);
+	}
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
 
     // Process metadata should be read from a text file
