@@ -428,87 +428,28 @@ int main( int argc, char *argv[]) {
     int current_quantum = 0;
 
 
-    // print the headers
+	/*
+	* Main Simulation Loop Algorithm
+	*
+	* 	1. Check if RUNNING process should TERMINATE or move to WAITING 
+	* 	2. Check if an WAITING processes should move to READY
+	* 	3. Check if any processes can be admitted to NEW state
+	* 	4. IF CPU idle, schedule and dispatch a process from NEW to RUNNING
+	* 	5. Advance simulation by one clock cycle
+	*
+	* @author Ben Earle
+	* @version 2022-09-01
+	* 
+	* @author Braeden Kloke
+	* @version 2023-11-06
+	*/
     printf("Time of transition,PID,Old State,New State\n");
-    // Simulation loop
     do {
-		// TODO(@braeden): should terminate processes in CPU as first step
 
-        // Update timers to reflect next simulation step
-        // Advance all the io timers for processes in waiting state
-        node = waiting_list;
-        while(node != NULL){
-            if (node ==NULL) break;
-            node->p->io_time_remaining -= 1;
-            if(node->p->io_time_remaining <= 0){
-                // This process is ready, it should change states from waiting to ready
-                // Update the time of next io event to the frequency of its occurance
-                // add it to the ready queue and remove it from waiting list
-                node->p->s = STATE_READY;
-                node->p->io_time_remaining = node->p->io_frequency;
-
-                temp = node->next;
-                remove_node(&waiting_list, node);
-                ready_list = push_node(ready_list, node);
-                printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_WAITING], STATES[STATE_READY]);
-
-                node = temp;
-            } else {
-                node = node->next;
-            }
-        }
-
-
-        // Check if any of the items in new queue should be moved to the ready queue
-        node = new_list;
-        while (node != NULL) {
-            // Check if process has arrived
-            if (node->p->arrival_time <= cpu_clock) {
-                bool memory_allocated = true;
-                if (using_memory_schema) {
-                    // Attempt to allocate memory to process
-                    memory_allocated = allocate_memory_partition(&node, main_memory, verbose);
-                }
-                if(memory_allocated) {
-					// Move process from NEW to READY
-                    node->p->s = STATE_READY;
-                    temp = node->next;
-                    remove_node(&new_list, node);
-                    ready_list = push_node(ready_list, node);
-                    printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
-                    node = temp;
-                } else {
-					node = node->next; // NOTE(@braeden): This prevents an infinite loop when arrival_time <= clock && memory not allocated
-				}
-            } else {
-                node = node->next;
-            }
-        }
-
-        // Make sure the CPU is running a process
-        if(running == NULL){
-            // If it isn't, check if there is one ready
-            if(ready_list!=NULL){
-                if(scheduler_type == 0) { // FCFS
-                    running = ready_list;
-                } else if(scheduler_type == 1) { // External Priorities (No Preemption)
-                    running = pick_highest_priority_process(&ready_list);
-                } else if(scheduler_type == 2) { // Round Robin
-                    running = ready_list; // Since it's just like FCFS but with a time slice.
-                }
-                running->p->s = STATE_RUNNING;
-                remove_node(&ready_list, running);
-                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-                current_quantum = 0;
-            } else{
-                running = NULL;
-                if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-            }
-        } else {
-            // if it is then remove the time step from remaining time until process completetion and next io event
-            running->p->cpu_time_remaining -= 1; 
-            running->p->io_time_remaining -= 1; 
-            // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
+		/*
+		* Step 1: Check if RUNNING process should TERMINATE or move to WAITING
+		*/
+		if (running != NULL) {
 
             if(running->p->cpu_time_remaining <= 0){
                 // The process is finished running, terminate it
@@ -523,6 +464,7 @@ int main( int argc, char *argv[]) {
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
 
+				// NOTE(@braeden): Redundant code, already makes ready list check
                 if(ready_list!=NULL){
                     running = ready_list;
                     running->p->s = STATE_RUNNING;
@@ -541,6 +483,7 @@ int main( int argc, char *argv[]) {
                 waiting_list = push_node(waiting_list,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_WAITING]);
 
+				// NOTE(@braeden): redundant code
                 if(ready_list!=NULL){
                     running = ready_list;
                     running->p->s = STATE_RUNNING;
@@ -568,8 +511,85 @@ int main( int argc, char *argv[]) {
             } else {
                 current_quantum += 1;
             }
+		}
+
+		/*
+		* Step 2: Check if an WAITING processes should move to READY
+		*/
+        node = waiting_list;
+        while(node != NULL){
+            if (node == NULL) break;
+            if(node->p->io_time_remaining <= 0){
+                // This process is ready, it should change states from waiting to ready
+                // Update the time of next io event to the frequency of its occurance
+                // add it to the ready queue and remove it from waiting list
+                node->p->s = STATE_READY;
+                node->p->io_time_remaining = node->p->io_frequency;
+
+                temp = node->next;
+                remove_node(&waiting_list, node);
+                ready_list = push_node(ready_list, node);
+                printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_WAITING], STATES[STATE_READY]);
+
+                node = temp;
+            } else {
+                node = node->next;
+            }
         }
 
+
+		/*
+		* Step 3: Check if any process can be admitted to NEW state
+		*/
+        node = new_list;
+        while (node != NULL) {
+            // Check if process has arrived
+            if (node->p->arrival_time <= cpu_clock) {
+                bool memory_allocated = true;
+                if (using_memory_schema) {
+                    // Attempt to allocate memory to process
+                    memory_allocated = allocate_memory_partition(&node, main_memory, verbose);
+                }
+                if(memory_allocated) {
+					// Move process from NEW to READY
+                    node->p->s = STATE_READY;
+                    temp = node->next;
+                    remove_node(&new_list, node);
+                    ready_list = push_node(ready_list, node);
+                    printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
+                    node = temp;
+                } else {
+					node = node->next; // NOTE(@braeden): This prevents an infinite loop when arrival_time <= clock && memory not allocated
+				}
+            } else {
+                node = node->next;
+            }
+        }
+
+		/*
+		* Step 4: Allocate process to CPU
+		*/
+        if(running == NULL){
+            // If it isn't, check if there is one ready
+            if(ready_list!=NULL){
+                if(scheduler_type == 0) { // FCFS
+                    running = ready_list;
+                } else if(scheduler_type == 1) { // External Priorities (No Preemption)
+                    running = pick_highest_priority_process(&ready_list);
+                } else if(scheduler_type == 2) { // Round Robin
+                    running = ready_list; // Since it's just like FCFS but with a time slice.
+                }
+                running->p->s = STATE_RUNNING;
+                remove_node(&ready_list, running);
+                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
+                current_quantum = 0;
+            } else{
+                running = NULL;
+                if(verbose) printf("%d: CPU is idle\n", cpu_clock);
+            }
+        } 
+
+		// Print out current state of simulation
         if(verbose){
             printf("-------------------------------------------------------------------------------------\n");
             printf("At CPU time %dms...\n", cpu_clock);
@@ -591,8 +611,25 @@ int main( int argc, char *argv[]) {
             printf("-------------------------------------------------------------------------------------\n");
         }
 
-        // Advance the cpu clock time
+		/*
+		* Step 5: Advance simulation to next clock cycle
+		*/
         cpu_clock += 1;
+
+		// Advance cpu and io time remaining for process in RUNNING
+		if (running != NULL) {
+            running->p->cpu_time_remaining -= 1; 
+            running->p->io_time_remaining -= 1; 
+            // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
+		}
+
+        // Advance all the io timers for processes in WAITING state
+        node = waiting_list;
+        while(node != NULL){
+            if (node == NULL) break;
+            node->p->io_time_remaining -= 1;
+            node = node->next;
+        }
 
         // The simulation is completed when all the queues are empty, in otherwords, all programs have run to completion
         simulation_completed = (ready_list == NULL) && (new_list == NULL) && (waiting_list == NULL) && (running == NULL);
