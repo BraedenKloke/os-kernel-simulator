@@ -329,45 +329,6 @@ bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int ver
     return false;
 }
 
-
-
-
-/* FUNCTION DESCRIPTION: get_time_to_next_event
-* This function returns the amount of simulation time until the next event occurs
-* The parameters are:
-*    - cpu_clock: Time since the start of the simulation
-*    - running: The node containing the currently running process
-*    - new queue: The list of precess that have yet to arrive in the cpu
-*    - waiting_list: The list of processes that are waiting for io
-* The return value is the time until the next event
-*/
-int get_time_to_next_event(int cpu_clock, node_t running, node_t new_list, node_t waiting_list){
-    node_t temp;
-    int next_exit=INT_MAX, next_block=INT_MAX, next_arrival=INT_MAX, next_io=INT_MAX;
-
-    if(running != NULL){
-        next_exit = running->p->cpu_time_remaining;
-        next_block = running->p->io_time_remaining;
-    }
-
-    // Search the new queue for the time until its next event
-    temp = new_list;
-    while(temp != NULL){
-        next_arrival = min(temp->p->arrival_time - cpu_clock, next_arrival);
-        temp = temp->next;
-    }
-
-    // Search the waiting queue for the time until its next event
-    temp = waiting_list;
-    while(temp != NULL){
-        next_io = min(temp->p->io_time_remaining, next_io);
-        temp = temp->next;
-    }
-
-    return min(min(next_exit, next_block), min(next_arrival, next_io));
-}
-
-
 /* FUNCTION DESCRIPTION: clean_up
 * This function frees all the dynamically allocated heap memory
 * The parameters are:
