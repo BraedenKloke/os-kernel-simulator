@@ -457,6 +457,7 @@ int main( int argc, char *argv[]) {
                 running->p->s = STATE_TERMINATED;
                 terminated = push_node(terminated,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
+				running = NULL;
 
 				// NOTE(@braeden): Redundant code, already makes ready list check
                 if(ready_list!=NULL){
@@ -476,6 +477,7 @@ int main( int argc, char *argv[]) {
                 running->p->s = STATE_WAITING;
                 waiting_list = push_node(waiting_list,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_WAITING]);
+				running = NULL;
 
 				// NOTE(@braeden): redundant code
                 if(ready_list!=NULL){
@@ -502,6 +504,7 @@ int main( int argc, char *argv[]) {
                     running = NULL;
                     if(verbose) printf("%d, CPU is idle\n", cpu_clock);
                 }
+				running = NULL;
             } else {
                 current_quantum += 1;
             }
