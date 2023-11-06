@@ -404,7 +404,7 @@ node_t pick_highest_priority_process(node_t *head) {
 
 
 int main( int argc, char *argv[]) {
-    int next_step = 0, cpu_clock = 0, i = 0;
+    int cpu_clock = 0, i = 0;
     bool simulation_completed = false;
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
@@ -473,13 +473,13 @@ int main( int argc, char *argv[]) {
     do {
         // Update timers to reflect next simulation step
         // Advance the cpu clock time
-        cpu_clock += next_step;
+        cpu_clock += 1;
         // Advance all the io timers for processes in waiting state
         node = waiting_list;
 
         while(node != NULL){
             if (node ==NULL) break;
-            node->p->io_time_remaining -= next_step;
+            node->p->io_time_remaining -= 1;
             if(node->p->io_time_remaining <= 0){
                 // This process is ready, it should change states from waiting to ready
                 // Update the time of next io event to the frequency of its occurance
@@ -549,9 +549,8 @@ int main( int argc, char *argv[]) {
             }
         } else {
             // if it is then remove the time step from remaining time until process completetion and next io event
-            //running->p->cpu_time_remaining -= next_step; // TEMP(@braeden): I believe this should just decrement
-            running->p->cpu_time_remaining -= 1; // TEMP(@braeden)
-            running->p->io_time_remaining -= next_step; //TODO(@braeden): should also just decrement
+            running->p->cpu_time_remaining -= 1; 
+            running->p->io_time_remaining -= 1; 
             // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
 
             if(running->p->cpu_time_remaining <= 0){
@@ -610,13 +609,9 @@ int main( int argc, char *argv[]) {
                     if(verbose) printf("%d, CPU is idle\n", cpu_clock);
                 }
             } else {
-                current_quantum += next_step;
+                current_quantum += 1;
             }
         }
-
-        // Set the simulation time advance
-        //next_step = get_time_to_next_event(cpu_clock, running, new_list, waiting_list); // NOTE(@braeden): this is breaking code.
-		next_step += 1; // NOTE(@braeden): Simply increment to next step, not fully tested. Could break code.
 
         if(verbose){
             printf("-------------------------------------------------------------------------------------\n");
