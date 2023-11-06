@@ -433,8 +433,6 @@ int main( int argc, char *argv[]) {
     // Simulation loop
     do {
         // Update timers to reflect next simulation step
-        // Advance the cpu clock time
-        cpu_clock += 1;
         // Advance all the io timers for processes in waiting state
         node = waiting_list;
 
@@ -595,9 +593,13 @@ int main( int argc, char *argv[]) {
             printf("-------------------------------------------------------------------------------------\n");
         }
 
+        // Advance the cpu clock time
+        cpu_clock += 1;
+
         // The simulation is completed when all the queues are empty, in otherwords, all programs have run to completion
         simulation_completed = (ready_list == NULL) && (new_list == NULL) && (waiting_list == NULL) && (running == NULL);
     } while(!simulation_completed);
+
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
     if(verbose) printf("Simulation completed in %d ms.\n", cpu_clock);
 
