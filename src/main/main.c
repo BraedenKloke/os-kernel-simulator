@@ -549,8 +549,9 @@ int main( int argc, char *argv[]) {
             }
         } else {
             // if it is then remove the time step from remaining time until process completetion and next io event
-            running->p->cpu_time_remaining -= next_step;
-            running->p->io_time_remaining -= next_step;
+            //running->p->cpu_time_remaining -= next_step; // TEMP(@braeden): I believe this should just decrement
+            running->p->cpu_time_remaining -= 1; // TEMP(@braeden)
+            running->p->io_time_remaining -= next_step; //TODO(@braeden): should also just decrement
             // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
 
             if(running->p->cpu_time_remaining <= 0){
