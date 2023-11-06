@@ -1,3 +1,4 @@
+// TODO(@braeden): update header docs to reflect new assignment
 /*****************************************************
 *      SYSC4001 - F2022 - Assignment 1 Solution      *
 ******************************************************
@@ -328,45 +329,6 @@ bool allocate_memory_partition(node_t *head,struct memory_partition *mm, int ver
     return false;
 }
 
-
-
-
-/* FUNCTION DESCRIPTION: get_time_to_next_event
-* This function returns the amount of simulation time until the next event occurs
-* The parameters are:
-*    - cpu_clock: Time since the start of the simulation
-*    - running: The node containing the currently running process
-*    - new queue: The list of precess that have yet to arrive in the cpu
-*    - waiting_list: The list of processes that are waiting for io
-* The return value is the time until the next event
-*/
-int get_time_to_next_event(int cpu_clock, node_t running, node_t new_list, node_t waiting_list){
-    node_t temp;
-    int next_exit=INT_MAX, next_block=INT_MAX, next_arrival=INT_MAX, next_io=INT_MAX;
-
-    if(running != NULL){
-        next_exit = running->p->cpu_time_remaining;
-        next_block = running->p->io_time_remaining;
-    }
-
-    // Search the new queue for the time until its next event
-    temp = new_list;
-    while(temp != NULL){
-        next_arrival = min(temp->p->arrival_time - cpu_clock, next_arrival);
-        temp = temp->next;
-    }
-
-    // Search the waiting queue for the time until its next event
-    temp = waiting_list;
-    while(temp != NULL){
-        next_io = min(temp->p->io_time_remaining, next_io);
-        temp = temp->next;
-    }
-
-    return min(min(next_exit, next_block), min(next_arrival, next_io));
-}
-
-
 /* FUNCTION DESCRIPTION: clean_up
 * This function frees all the dynamically allocated heap memory
 * The parameters are:
@@ -403,7 +365,7 @@ node_t pick_highest_priority_process(node_t *head) {
 
 
 int main( int argc, char *argv[]) {
-    int next_step = 0, cpu_clock = 0, i = 0;
+    int cpu_clock = 0, i = 0;
     bool simulation_completed = false;
     node_t ready_list = NULL, new_list = NULL, waiting_list = NULL, terminated = NULL, temp, node;
     node_t running = NULL;
@@ -466,19 +428,62 @@ int main( int argc, char *argv[]) {
     int current_quantum = 0;
 
 
-    // print the headers
+	/*
+	* Main Simulation Loop Algorithm
+	*
+	* 	1. Check if RUNNING process should TERMINATE, move to WAITING or move to READY
+	* 	2. Check if an WAITING processes should move to READY
+	* 	3. Check if any processes can be admitted to NEW state
+	* 	4. IF CPU idle, schedule and dispatch a process from NEW to RUNNING
+	* 	5. Advance simulation by one clock cycle
+	*/
     printf("Time of transition,PID,Old State,New State\n");
-    // Simulation loop
     do {
-        // Update timers to reflect next simulation step
-        // Advance the cpu clock time
-        cpu_clock += next_step;
-        // Advance all the io timers for processes in waiting state
-        node = waiting_list;
 
+		/*
+		* Step 1: Check if RUNNING process should TERMINATE, move to WAITING or move to READY
+		*/
+		if (running != NULL) {
+
+            if(running->p->cpu_time_remaining <= 0){
+                // The process is finished running, move to TERMINATED
+
+                // Free up memory for another process 
+				if(verbose) {printf("-------------------------------------------\n");}
+				if(verbose) {printf("Freeing memory partition %d from process %d\n", running->p->index_of_memory_partition, running->p->pid);}
+				if(verbose) {printf("-------------------------------------------\n");}
+				main_memory[running->p->index_of_memory_partition].is_available = true;
+
+                running->p->s = STATE_TERMINATED;
+                terminated = push_node(terminated,running);
+                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
+				running = NULL;
+
+            } else if(running->p->io_time_remaining <= 0){
+                // The process is blocked by io, update the timer and and move process to WAITING
+                running->p->io_time_remaining = running->p->io_duration;
+                running->p->s = STATE_WAITING;
+                waiting_list = push_node(waiting_list,running);
+                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_WAITING]);
+				running = NULL;
+
+            } else if(scheduler_type == 2 && current_quantum >= time_quantum) { 
+				// Process timed out using round robin scheduling, move process to READY
+                ready_list = push_node(ready_list, running);
+                running->p->s = STATE_READY;
+				running = NULL;
+
+            } else {
+                current_quantum += 1; // TODO(@braeden): @grant, this can probably be refactored to STEP 5: Advance Simulation
+            }
+		}
+
+		/*
+		* Step 2: Check if a WAITING processes should move to READY
+		*/
+        node = waiting_list;
         while(node != NULL){
-            if (node ==NULL) break;
-            node->p->io_time_remaining -= next_step;
+            if (node == NULL) break;
             if(node->p->io_time_remaining <= 0){
                 // This process is ready, it should change states from waiting to ready
                 // Update the time of next io event to the frequency of its occurance
@@ -498,7 +503,9 @@ int main( int argc, char *argv[]) {
         }
 
 
-        // Check if any of the items in new queue should be moved to the ready queue
+		/*
+		* Step 3: Check if any process can be admitted to NEW state
+		*/
         node = new_list;
         while (node != NULL) {
             // Check if process has arrived
@@ -516,16 +523,17 @@ int main( int argc, char *argv[]) {
                     ready_list = push_node(ready_list, node);
                     printf("%d,%d,%s,%s\n", cpu_clock, node->p->pid, STATES[STATE_NEW], STATES[STATE_READY]);
                     node = temp;
-                }
+                } else {
+					node = node->next; // NOTE(@braeden): This prevents an infinite loop when arrival_time <= clock && memory not allocated
+				}
             } else {
                 node = node->next;
             }
         }
 
-
-
-
-        // Make sure the CPU is running a process
+		/*
+		* Step 4: Allocate process to CPU
+		*/
         if(running == NULL){
             // If it isn't, check if there is one ready
             if(ready_list!=NULL){
@@ -544,75 +552,9 @@ int main( int argc, char *argv[]) {
                 running = NULL;
                 if(verbose) printf("%d: CPU is idle\n", cpu_clock);
             }
-        } else {
-            // if it is then remove the time step from remaining time until process completetion and next io event
-            running->p->cpu_time_remaining -= next_step;
-            running->p->io_time_remaining -= next_step;
-            // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
+        } 
 
-            if(running->p->cpu_time_remaining <= 0){
-                // The process is finished running, terminate it
-
-                // Free up memory for another process 
-				if(verbose) {printf("-------------------------------------------\n");}
-				if(verbose) {printf("Freeing memory partition %d from process %d\n", running->p->index_of_memory_partition, running->p->pid);}
-				if(verbose) {printf("-------------------------------------------\n");}
-				main_memory[running->p->index_of_memory_partition].is_available = true;
-
-                running->p->s = STATE_TERMINATED;
-                terminated = push_node(terminated,running);
-                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
-
-                if(ready_list!=NULL){
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-
-                } else{
-                    running = NULL;
-                    if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                }
-
-            } else if(running->p->io_time_remaining <= 0){
-                // The process is blocked by io, update the timer and set state to waiting
-                running->p->io_time_remaining = running->p->io_duration;
-                running->p->s = STATE_WAITING;
-                waiting_list = push_node(waiting_list,running);
-                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_WAITING]);
-
-                if(ready_list!=NULL){
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-
-                } else {
-                    running = NULL;
-                    if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                }
-            } else if(scheduler_type == 2 && current_quantum >= time_quantum) { // Handle Round Robin Logic
-                // Round Robin time quantum exhaustion logic
-                ready_list = push_node(ready_list, running);
-                running->p->s = STATE_READY;
-                if(ready_list != NULL) {
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-                    current_quantum = 0;
-                } else {
-                    running = NULL;
-                    if(verbose) printf("%d, CPU is idle\n", cpu_clock);
-                }
-            } else {
-                current_quantum += next_step;
-            }
-        }
-
-        // Set the simulation time advance
-        next_step = get_time_to_next_event(cpu_clock, running, new_list, waiting_list);
-
+		// Print out current state of simulation
         if(verbose){
             printf("-------------------------------------------------------------------------------------\n");
             printf("At CPU time %dms...\n", cpu_clock);
@@ -634,9 +576,30 @@ int main( int argc, char *argv[]) {
             printf("-------------------------------------------------------------------------------------\n");
         }
 
+		/*
+		* Step 5: Advance simulation to next clock cycle
+		*/
+        cpu_clock += 1;
+
+		// Advance cpu and io time remaining for process in RUNNING
+		if (running != NULL) {
+            running->p->cpu_time_remaining -= 1; 
+            running->p->io_time_remaining -= 1; 
+            // if(verbose) printf("%d: PID %d has %dms until completion and %dms until io block\n", cpu_clock,  running->p->pid, running->p->cpu_time_remaining,running->p->io_time_remaining);
+		}
+
+        // Advance all the io timers for processes in WAITING state
+        node = waiting_list;
+        while(node != NULL){
+            if (node == NULL) break;
+            node->p->io_time_remaining -= 1;
+            node = node->next;
+        }
+
         // The simulation is completed when all the queues are empty, in otherwords, all programs have run to completion
         simulation_completed = (ready_list == NULL) && (new_list == NULL) && (waiting_list == NULL) && (running == NULL);
     } while(!simulation_completed);
+
     if(verbose) printf("-------------------------------------------------------------------------------------\n");
     if(verbose) printf("Simulation completed in %d ms.\n", cpu_clock);
 
