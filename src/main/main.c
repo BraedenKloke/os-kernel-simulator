@@ -431,23 +431,17 @@ int main( int argc, char *argv[]) {
 	/*
 	* Main Simulation Loop Algorithm
 	*
-	* 	1. Check if RUNNING process should TERMINATE or move to WAITING 
+	* 	1. Check if RUNNING process should TERMINATE, move to WAITING or move to READY
 	* 	2. Check if an WAITING processes should move to READY
 	* 	3. Check if any processes can be admitted to NEW state
 	* 	4. IF CPU idle, schedule and dispatch a process from NEW to RUNNING
 	* 	5. Advance simulation by one clock cycle
-	*
-	* @author Ben Earle
-	* @version 2022-09-01
-	* 
-	* @author Braeden Kloke
-	* @version 2023-11-06
 	*/
     printf("Time of transition,PID,Old State,New State\n");
     do {
 
 		/*
-		* Step 1: Check if RUNNING process should TERMINATE or move to WAITING
+		* Step 1: Check if RUNNING process should TERMINATE, move to WAITING or move to READY
 		*/
 		if (running != NULL) {
 
