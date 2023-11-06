@@ -432,10 +432,11 @@ int main( int argc, char *argv[]) {
     printf("Time of transition,PID,Old State,New State\n");
     // Simulation loop
     do {
+		// TODO(@braeden): should terminate processes in CPU as first step
+
         // Update timers to reflect next simulation step
         // Advance all the io timers for processes in waiting state
         node = waiting_list;
-
         while(node != NULL){
             if (node ==NULL) break;
             node->p->io_time_remaining -= 1;
@@ -483,9 +484,6 @@ int main( int argc, char *argv[]) {
                 node = node->next;
             }
         }
-
-
-
 
         // Make sure the CPU is running a process
         if(running == NULL){
