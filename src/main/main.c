@@ -471,10 +471,11 @@ int main( int argc, char *argv[]) {
 				// Process timed out using round robin scheduling, move process to READY
                 ready_list = push_node(ready_list, running);
                 running->p->s = STATE_READY;
+                printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_READY]);
 				running = NULL;
 
             } else {
-                current_quantum += 1; // TODO(@braeden): @grant, this can probably be refactored to STEP 5: Advance Simulation
+                //current_quantum += 1; // TODO(@braeden): @grant, this can probably be refactored to STEP 5: Advance Simulation
             }
 		}
 
@@ -489,7 +490,7 @@ int main( int argc, char *argv[]) {
                 // Update the time of next io event to the frequency of its occurance
                 // add it to the ready queue and remove it from waiting list
                 node->p->s = STATE_READY;
-                node->p->io_time_remaining = node->p->io_frequency;
+                node->p->io_time_remaining = node->p->io_frequency; // TODO @braeden should this not be node->p->io_duration
 
                 temp = node->next;
                 remove_node(&waiting_list, node);
@@ -579,6 +580,7 @@ int main( int argc, char *argv[]) {
 		/*
 		* Step 5: Advance simulation to next clock cycle
 		*/
+        current_quantum += 1;
         cpu_clock += 1;
 
 		// Advance cpu and io time remaining for process in RUNNING
