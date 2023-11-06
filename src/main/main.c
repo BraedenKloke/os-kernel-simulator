@@ -446,7 +446,7 @@ int main( int argc, char *argv[]) {
 		if (running != NULL) {
 
             if(running->p->cpu_time_remaining <= 0){
-                // The process is finished running, terminate it
+                // The process is finished running, move to TERMINATED
 
                 // Free up memory for another process 
 				if(verbose) {printf("-------------------------------------------\n");}
@@ -459,59 +459,27 @@ int main( int argc, char *argv[]) {
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_TERMINATED]);
 				running = NULL;
 
-				// NOTE(@braeden): Redundant code, already makes ready list check
-                if(ready_list!=NULL){
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-
-                } else{
-                    running = NULL;
-                    if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                }
-
             } else if(running->p->io_time_remaining <= 0){
-                // The process is blocked by io, update the timer and set state to waiting
+                // The process is blocked by io, update the timer and and move process to WAITING
                 running->p->io_time_remaining = running->p->io_duration;
                 running->p->s = STATE_WAITING;
                 waiting_list = push_node(waiting_list,running);
                 printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_RUNNING], STATES[STATE_WAITING]);
 				running = NULL;
 
-				// NOTE(@braeden): redundant code
-                if(ready_list!=NULL){
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-
-                } else {
-                    running = NULL;
-                    if(verbose) printf("%d: CPU is idle\n", cpu_clock);
-                }
-            } else if(scheduler_type == 2 && current_quantum >= time_quantum) { // Handle Round Robin Logic
-                // Round Robin time quantum exhaustion logic
+            } else if(scheduler_type == 2 && current_quantum >= time_quantum) { 
+				// Process timed out using round robin scheduling, move process to READY
                 ready_list = push_node(ready_list, running);
                 running->p->s = STATE_READY;
-                if(ready_list != NULL) {
-                    running = ready_list;
-                    running->p->s = STATE_RUNNING;
-                    remove_node(&ready_list, running);
-                    printf("%d,%d,%s,%s\n", cpu_clock, running->p->pid, STATES[STATE_READY], STATES[STATE_RUNNING]);
-                    current_quantum = 0;
-                } else {
-                    running = NULL;
-                    if(verbose) printf("%d, CPU is idle\n", cpu_clock);
-                }
 				running = NULL;
+
             } else {
-                current_quantum += 1;
+                current_quantum += 1; // TODO(@braeden): @grant, this can probably be refactored to STEP 5: Advance Simulation
             }
 		}
 
 		/*
-		* Step 2: Check if an WAITING processes should move to READY
+		* Step 2: Check if a WAITING processes should move to READY
 		*/
         node = waiting_list;
         while(node != NULL){
