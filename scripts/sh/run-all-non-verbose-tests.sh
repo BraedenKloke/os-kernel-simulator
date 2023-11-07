@@ -2,14 +2,23 @@
 #
 # Runs all non-verbose tests as a batch.
 
-TEST_SCRIPTS=(
+TESTS=(
 	test1_fcfs_non-verbose.sh
+	test2_fcfs_non-verbose.sh
+	test1_external-priorities_non-verbose.sh
+	test2_external-priorities_non-verbose.sh
+	test1_rr_non-verbose.sh
+	test2_rr_non-verbose.sh
+	test1_memory1_non-verbose.sh
+	test2_memory1_non-verbose.sh
+	test1_memory2_non-verbose.sh
+	test2_memory2_non-verbose.sh
 )
 
-for test in $TEST_SCRIPTS
+for i in {0..9}
 do
-	echo "Running ${test} ..."
-	./scripts/sh/$test
+	echo "Running ${TESTS[i]} ..."
+	./scripts/sh/"${TESTS[i]}"
 done
 
 echo "Tests complete."
