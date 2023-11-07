@@ -1,4 +1,4 @@
 Pid,Arrival Time,Total CPU Time,I/O Frequency,I/O Duration,Priorities,Process Size
-1001,0,80,30,5,5,150
-1002,75,100,5,40,4,100
-1003,30,50,10,5,7,200
+1001,0,30,30,5,5,150
+1002,5,20,5,40,4,100
+1003,10,60,10,5,7,200
