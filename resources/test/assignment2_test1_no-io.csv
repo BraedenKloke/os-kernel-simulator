@@ -1,0 +1,6 @@
+Pid,Arrival Time,Total CPU Time,I/O Frequency,I/O Duration, Priority, Process Size
+1001,0,18,20,20,0,350
+1002,3,7,20,20,1,300
+1003,8,12,20,20,2,250
+1004,11,10,20,20,3,200
+1005,13,9,20,20,4,150
