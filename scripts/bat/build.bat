@@ -5,7 +5,7 @@ REM Change to the project root directory from the bat directory
 cd /d "%~dp0..\..\"
 
 REM Compile the C program
-gcc src\main\main.c -o out\assignment2.exe
+gcc src\main\main.c -o out\assignment2.o
 
 IF %ERRORLEVEL% NEQ 0 (
     echo Compilation failed.

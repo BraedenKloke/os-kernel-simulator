@@ -43,7 +43,17 @@ out/assignment2.o
 
 ## Windows
 
-Coming soon ...
+Run the following command to build the project:
+
+```
+scripts\sh\build.bat
+```
+
+Confirm the following binary object is built:
+
+```
+out\assignment2.o
+```
 
 # Test <a name="test"></a>
 

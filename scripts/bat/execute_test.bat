@@ -16,7 +16,7 @@ REM Change to the project root directory
 cd /d "%~dp0..\..\"
 
 REM Run the program with the specified input file
-out\assignment2.exe "resources\scheduler-simulation\scenario9.csv" 2 "resources\schemas\memory_schema_1.csv" 0 0 > out\scheduler-simulation\scenario9.csv
+out\assignment2.o "resources\scheduler-simulation\scenario9.csv" 2 "resources\schemas\memory_schema_1.csv" 0 0 > out\scheduler-simulation\scenario9.csv
 
 REM Display the contents of the output file
 type out\scheduler-simulation\scenario9.csv
