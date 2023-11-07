@@ -8,13 +8,17 @@
 
 # Assignment 2 Gantt Diagram of FCFS Algorithm without I/O
 mmdc -i src/mermaid/assignment-2-gantt-fcfs-without-io.mmd \
-	-o resources/images/assignment-2-gantt-fcfs-without-io.png
+	-o out/mermaid/assignment-2-gantt-fcfs-without-io.png
 
 # Assignment 2 Gantt Diagram of RR Algorithm without I/O
 mmdc -i src/mermaid/assignment-2-gantt-rr-without-io.mmd \
-	-o resources/images/assignment-2-gantt-rr-without-io.png
+	-o out/mermaid/assignment-2-gantt-rr-without-io.png
 
 # Assignment 2 Gantt Diagram of Multi-Level Feedback Queue
 # without I/O
 mmdc -i src/mermaid/assignment-2-gantt-mlfq-without-io.mmd \
-	-o resources/images/assignment-2-gantt-mlfq-without-io.png
+	-o out/mermaid/assignment-2-gantt-mlfq-without-io.png
+
+# Assignment 2 Gantt Diagram of FCFS Algorithm with IO
+mmdc -i src/mermaid/assignment-2-gantt-fcfs-with-io.mmd \
+	-o out/mermaid/assignment-2-gantt-fcfs-with-io.png
