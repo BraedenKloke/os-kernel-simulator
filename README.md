@@ -23,6 +23,7 @@ which Professor Wainer distributed and confirmed we could use as a starting poin
 
 1. [Build](#build)
 2. [Test](#test)
+3. [Memory Management Simulation Instructions](#memory-simulation)
 
 # Build <a name="build"></a>
 
@@ -111,3 +112,12 @@ Run the following commands to run the various tests:
 
 Coming soon ...
 
+# Memory Management Simulation Instructions <a name="memory-simulation"></a>
+
+Simulation scenarios are located in `/resources/memory-simulation`.
+
+Run the following script to execute the memory management simulation:
+
+```
+./scripts/sh/run-memory-simulation.sh
+```
