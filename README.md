@@ -1,23 +1,19 @@
-# SYSC 4001 Assignment 2
+# OS Kernel Simulator for SYSC 4001 Assignment 2
 
-===============================================================================================================
-
-# Authors
+## Authors
 
 * Grant Phillips
 * Braeden Kloke
 
-# Acknowledgements
+## Acknowledgements
 
 We would like to acknowledge Ben Earle (BenEarle@cmail.carleton.ca) for providing a solution for Assignment 1
 which Professor Wainer distributed and confirmed we could use as a starting point for Assignment 2.
 
-# Changes Since Last Assignment
+## Changes Since Last Assignment
 
 * Implemented FCFS, External Priorities and Round Robin scheduling algorithms
 * Implemented memory management with fixed partitions
-
-===============================================================================================================
 
 # Table of Contents
 
@@ -81,7 +77,13 @@ All test results can be found in the following files:
 
 NOTE: Verbose options for each script are available by editing 'non-verbose' to 'verbose' in the script filename.
 
-Run the following commands to run the various tests:
+Run the following command to run all tests as a batch in non-verbose mode:
+
+```
+./scripts/sh/run-all-non-verbose-tests.sh
+```
+
+Run the following commands to run the various tests individually:
 
 ### Test FCFS
 
@@ -124,10 +126,12 @@ Coming soon ...
 
 # Memory Management Simulation Instructions <a name="memory-simulation"></a>
 
-Simulation scenarios are located in `/resources/memory-simulation`.
+Simulation scenarios are located in `/resources/memory-simulation/`.
 
 Run the following script to execute the memory management simulation:
 
 ```
 ./scripts/sh/run-memory-simulation.sh
 ```
+
+Scenario results from the simulation can be found in `/out/memory-simulation/`

@@ -1,16 +1,12 @@
-// TODO(@braeden): update header docs to reflect new assignment
-/*****************************************************
-*      SYSC4001 - F2022 - Assignment 1 Solution      *
-******************************************************
-* By: Ben Earle (BenEarle@cmail.carleton.ca)         *
-******************************************************
-* This sample solution was prepared for Dr. Wainer   *
-* in fall of 2022. This solution uses a linked list  *
-* to store the each states processes. They are       *
-* scheduled in a FIFO manner. If you have any        *
-* questions please do not hesitate to reach out via  *
-* email or during the scheduled lab times.           *
-******************************************************/
+/*
+* OS Kernel Simulator for SYSC 4001 Assignment 2.
+*
+* @author Ben Earle
+* @version 2022-09-01
+*
+* @author Braeden Kloke, Grant Phillips
+* @version 2023-11-07
+*/
 
 // Header file for input output functions
 #include <stdio.h>
@@ -23,7 +19,6 @@
 // Macro to return the min of a and b
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define NUM_MEMORY_PARTITIONS 4
-#define NOT_USING_MEMORY_SCHEMA true
 
 // An enumerator (enum for short) to represent the state
 enum STATE {
