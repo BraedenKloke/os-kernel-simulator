@@ -120,9 +120,6 @@ Run the following commands to run the various tests individually:
 ./scripts/sh/test2_memory2_non-verbose.sh
 ```
 
-## Windows
-
-Coming soon ...
 
 # Memory Management Simulation Instructions <a name="memory-simulation"></a>
 
